@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const sequelize = require('./config/database');
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
@@ -33,6 +34,7 @@ sequelize.sync({ alter: true })
 // Routes
 const exampleRoutes = require('./routes/exampleRoutes');
 app.use('/api/examples', exampleRoutes);
+app.use('/api/auth', authRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -42,7 +44,7 @@ app.get('/', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 const PORT = process.env.PORT || 3000;

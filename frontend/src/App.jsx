@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
-import Counter from './components/Counter';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -51,9 +51,15 @@ const AppContent = () => {
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
 
-            {/* Public Routes that don't need authentication check */}
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
+            {/* Redirect root to dashboard if authenticated, otherwise to login */}
+            <Route 
+              path="/" 
+              element={
+                isAuthenticated ? 
+                <Navigate to="/dashboard" replace /> : 
+                <Navigate to="/login" replace />
+              } 
+            />
           </Routes>
         </Container>
       </div>
@@ -74,7 +80,6 @@ function Home() {
   return (
     <div>
       <h1 className="text-center mb-4">Welcome to Web2D</h1>
-      <Counter />
     </div>
   );
 }

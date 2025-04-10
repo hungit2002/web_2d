@@ -1,11 +1,12 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../store/authSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
+import { login } from '../services/auth.service';
+import { setCredentials } from '../store/slices/authSlice';
 
 const schema = yup.object().shape({
   email: yup.string().email('Invalid email').required('Email is required'),
@@ -18,6 +19,9 @@ const schema = yup.object().shape({
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -26,16 +30,36 @@ const Login = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    // Here you would typically send the data to your backend
-    // For demo purposes, we'll simulate a successful login
-    dispatch(
-      loginSuccess({
-        user: { email: data.email },
-        token: 'demo-token',
-      })
-    );
-    navigate('/dashboard');
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await login(data);
+      
+      if (response.success) {
+        const { user, token } = response.data;
+        
+        const action = setCredentials({ 
+          user: {
+            id: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            phone: user.phone
+          }, 
+          token 
+        });
+        
+        dispatch(action);
+        
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.error || 'An error occurred during login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,6 +69,13 @@ const Login = () => {
           <div className="card shadow">
             <div className="card-body p-4">
               <h2 className="text-center mb-4">Login</h2>
+              
+              {error && (
+                <Alert variant="danger" className="mb-3">
+                  {error}
+                </Alert>
+              )}
+
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group className="mb-3">
                   <Form.Label>Email</Form.Label>
@@ -73,8 +104,13 @@ const Login = () => {
                 </Form.Group>
 
                 <div className="d-grid gap-2">
-                  <Button variant="primary" type="submit" size="lg">
-                    Login
+                  <Button 
+                    variant="primary" 
+                    type="submit" 
+                    size="lg"
+                    disabled={loading}
+                  >
+                    {loading ? 'Logging in...' : 'Login'}
                   </Button>
                 </div>
 

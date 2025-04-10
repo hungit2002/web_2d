@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container, Button } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { logout } from '../store/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { logout } from '../store/slices/authSlice';
 
 const Dashboard = () => {
   const dispatch = useDispatch();

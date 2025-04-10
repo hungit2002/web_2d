@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { vietnameseCities } from '../constants/cities';
+import { register as registerApi, verifyRegistration } from '../services/auth.service';
+import { setCredentials, setLoading, setError } from '../store/slices/authSlice';
 
 const schema = yup.object().shape({
   fullName: yup.string().required('Full name is required'),
@@ -20,27 +23,51 @@ const schema = yup.object().shape({
     .string()
     .matches(/^[0-9]{10,11}$/, 'Phone number must be valid')
     .required('Phone number is required'),
-  verificationCode: yup.string().required('Verification code is required'),
+  verificationCode: yup.string().when('showVerificationCode', {
+    is: true,
+    then: (schema) => schema.required('Verification code is required'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
 const Register = () => {
   const [showVerificationCode, setShowVerificationCode] = useState(false);
+  const [formData, setFormData] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      showVerificationCode: false,
+    },
   });
 
-  const onSubmit = (data) => {
-    if (!showVerificationCode) {
-      // Here you would typically send the data to your backend
-      // to request a verification code
-      setShowVerificationCode(true);
-    } else {
-      // Here you would verify the code and complete registration
-      console.log('Registration data:', data);
+  const onSubmit = async (data) => {
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+
+      if (!showVerificationCode) {
+        await registerApi(data);
+        setFormData(data);
+        setShowVerificationCode(true);
+      } else {
+        const { email, verificationCode, ...userData } = data;
+        const result = await verifyRegistration(email, verificationCode, userData);
+        dispatch(setCredentials(result));
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      dispatch(setError(error.response?.data?.error || 'Something went wrong'));
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -51,6 +78,7 @@ const Register = () => {
           <div className="card shadow">
             <div className="card-body p-4">
               <h2 className="text-center mb-4">Registration</h2>
+              {error && <Alert variant="danger">{error}</Alert>}
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group className="mb-3">
                   <Form.Label>Full Name</Form.Label>
@@ -165,8 +193,13 @@ const Register = () => {
                 )}
 
                 <div className="d-grid gap-2">
-                  <Button variant="primary" type="submit" size="lg">
-                    {showVerificationCode ? 'Complete Registration' : 'Get Verification Code'}
+                  <Button 
+                    variant="primary" 
+                    type="submit" 
+                    size="lg"
+                    disabled={loading}
+                  >
+                    {loading ? 'Loading...' : showVerificationCode ? 'Complete Registration' : 'Get Verification Code'}
                   </Button>
                 </div>
 
