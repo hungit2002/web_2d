@@ -6,30 +6,66 @@ import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Counter from './components/Counter';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
+import { useSelector } from 'react-redux';
 
+// AppContent component that uses Redux
+const AppContent = () => {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  
+  return (
+    <Router>
+      <div className="App">
+        <Navbar bg="dark" variant="dark">
+          <Container>
+            <Navbar.Brand href="/">Web2D</Navbar.Brand>
+            <Nav className="me-auto">
+              {!isAuthenticated ? (
+                <>
+                  <Nav.Link href="/login">Login</Nav.Link>
+                  <Nav.Link href="/register">Register</Nav.Link>
+                </>
+              ) : (
+                <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+              )}
+            </Nav>
+          </Container>
+        </Navbar>
+
+        <Container className="mt-4">
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+            </Route>
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
+
+            {/* Public Routes that don't need authentication check */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </Container>
+      </div>
+    </Router>
+  );
+};
+
+// Main App component that provides the Redux store
 function App() {
   return (
     <Provider store={store}>
-      <Router>
-        <div className="App">
-          <Navbar bg="dark" variant="dark">
-            <Container>
-              <Navbar.Brand href="/">Web2D</Navbar.Brand>
-              <Nav className="me-auto">
-                <Nav.Link href="/">Home</Nav.Link>
-                <Nav.Link href="/about">About</Nav.Link>
-              </Nav>
-            </Container>
-          </Navbar>
-
-          <Container className="mt-4">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-            </Routes>
-          </Container>
-        </div>
-      </Router>
+      <AppContent />
     </Provider>
   );
 }
