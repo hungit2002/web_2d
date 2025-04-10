@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "Tranduyhung11",
+    "database": "web2d",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "Tranduyhung11",
+    "database": "web2d_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "Tranduyhung11",
+    "database": "web2d_prod",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+} 
