@@ -7,7 +7,7 @@ import { logout } from '../store/slices/authSlice';
 const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');

@@ -1,8 +1,9 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import {getAccessToken} from "../utils/session.js";
 
 const ProtectedRoute = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const isAuthenticated = getAccessToken()
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

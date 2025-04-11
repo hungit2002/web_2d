@@ -13,10 +13,11 @@ import ForgotPassword from './pages/ForgotPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import { useSelector } from 'react-redux';
+import {getAccessToken} from "./utils/session.js";
 
 // AppContent component that uses Redux
 const AppContent = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const isAuthenticated = getAccessToken()
   
   return (
     <Router>
