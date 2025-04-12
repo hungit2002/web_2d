@@ -9,7 +9,7 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Badge from 'react-bootstrap/Badge';
 import Image from 'react-bootstrap/Image';
-import { FaShoppingCart, FaBell, FaUser } from 'react-icons/fa';
+import { FaShoppingCart, FaBell, FaUser, FaUserShield, FaChartBar, FaUsers, FaBoxOpen, FaShoppingBag, FaCog } from 'react-icons/fa';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -17,14 +17,87 @@ import ForgotPassword from './pages/ForgotPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import { useSelector, useDispatch } from 'react-redux';
-import { getAccessToken } from "./utils/session.js";
+import { getAccessToken, isAdminSession } from "./utils/session.js";
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 
-// AppContent component that uses Redux
-const AppContent = () => {
-  // Use state to track authentication status
+// Admin Layout Component
+const AdminLayout = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(getAccessToken());
+  const location = useLocation();
+  const authState = useSelector(state => state.auth);
+  
+  useEffect(() => {
+    setIsAuthenticated(getAccessToken());
+  }, [location, authState]);
+  
+  return (
+    <div className="AdminApp">
+      <Navbar bg="dark" variant="dark" expand="lg">
+        <Container>
+          {/* Admin Logo */}
+          <Navbar.Brand href="/admin/dashboard">
+            <FaUserShield className="d-inline-block align-top me-2" size={24} />
+            Web2D Admin
+          </Navbar.Brand>
+          
+          <Navbar.Toggle aria-controls="admin-navbar-nav" />
+          <Navbar.Collapse id="admin-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link href="/admin/dashboard">
+                <FaChartBar className="me-1" /> Dashboard
+              </Nav.Link>
+              <Nav.Link href="/admin/users">
+                <FaUsers className="me-1" /> Users
+              </Nav.Link>
+              <Nav.Link href="/admin/products">
+                <FaBoxOpen className="me-1" /> Products
+              </Nav.Link>
+              <Nav.Link href="/admin/orders">
+                <FaShoppingBag className="me-1" /> Orders
+              </Nav.Link>
+              <Nav.Link href="/admin/settings">
+                <FaCog className="me-1" /> Settings
+              </Nav.Link>
+            </Nav>
+            
+            <Nav>
+              <NavDropdown 
+                title={
+                  <div className="d-inline-block">
+                    <FaUserShield size={20} /> Admin
+                  </div>
+                } 
+                id="admin-dropdown"
+                align="end"
+              >
+                <NavDropdown.Item href="/admin/profile">Profile</NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item 
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    setIsAuthenticated(false);
+                    window.location.href = '/admin/login';
+                  }}
+                >
+                  Logout
+                </NavDropdown.Item>
+              </NavDropdown>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      <Container className="mt-4">
+        {children}
+      </Container>
+    </div>
+  );
+};
+
+// User Layout Component
+const UserLayout = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(getAccessToken());
   const location = useLocation();
   const authState = useSelector(state => state.auth);
@@ -33,13 +106,12 @@ const AppContent = () => {
   const cartItemCount = 3; // Example value
   const notificationCount = 5; // Example value
   
-  // Update authentication status when location changes or auth state changes
   useEffect(() => {
     setIsAuthenticated(getAccessToken());
   }, [location, authState]);
   
   return (
-    <div className="App">
+    <div className="UserApp">
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
           {/* Logo - Always visible */}
@@ -130,9 +202,8 @@ const AppContent = () => {
                   <NavDropdown.Divider />
                   <NavDropdown.Item 
                     onClick={() => {
-                      // Dispatch logout action here
                       localStorage.removeItem('token');
-                      setIsAuthenticated(false); // Update state immediately
+                      setIsAuthenticated(false);
                       window.location.href = '/login';
                     }}
                   >
@@ -146,54 +217,110 @@ const AppContent = () => {
       </Navbar>
 
       <Container className="mt-4">
+        {children}
+      </Container>
+    </div>
+  );
+};
+
+// AppContent component that uses Redux
+const AppContent = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(getAccessToken());
+  const [isAdmin, setIsAdmin] = useState(false); // You'll need to determine this from your auth state
+  const location = useLocation();
+  const authState = useSelector(state => state.auth);
+  
+  // Update authentication status when location changes or auth state changes
+  useEffect(() => {
+    const token = getAccessToken();
+    setIsAuthenticated(token);
+    
+    // Check admin status
+    const adminStatus = isAdminSession();
+    console.log(adminStatus);
+    
+    const isAdminPath = location.pathname.startsWith('/admin');
+    const isAdminLoginPath = location.pathname === '/admin/login';
+    
+    if (token && adminStatus && isAdminPath && !isAdminLoginPath) {
+      setIsAdmin(true);
+    } else if (!token || !adminStatus) {
+      setIsAdmin(false);
+      // Redirect non-admin users away from admin paths
+      if (isAdminPath && !isAdminLoginPath) {
+        window.location.href = '/admin/login';
+      }
+    }
+  }, [location, authState]);
+  
+  return (
+    <Routes>
+      {/* Admin Routes */}
+      <Route path="/admin/*" element={
         <Routes>
+          {/* Admin Public Routes */}
+          <Route path="login" element={<AdminLogin />} />
+          
+          {/* Admin Protected Routes - Using AdminLayout */}
+          <Route element={<AdminProtectedRoute />}>
+            <Route path="*" element={
+              <AdminLayout>
+                <Routes>
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<div>Admin Users Management</div>} />
+                  <Route path="products" element={<div>Admin Products Management</div>} />
+                  <Route path="orders" element={<div>Admin Orders Management</div>} />
+                  <Route path="settings" element={<div>Admin Settings</div>} />
+                  <Route path="profile" element={<div>Admin Profile</div>} />
+                  {/* Redirect admin root to dashboard */}
+                  <Route path="" element={<Navigate to="/admin/dashboard" replace />} />
+                </Routes>
+              </AdminLayout>
+            } />
+          </Route>
+        </Routes>
+      } />
+      
+      {/* User Routes */}
+      <Route path="/*" element={
+        <UserLayout>
+          <Routes>
             {/* Public Routes */}
             <Route element={<PublicRoute />}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
             </Route>
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              {/* Add other protected routes here */}
-              <Route path="/cart" element={<div>Cart Page</div>} />
-              <Route path="/notifications" element={<div>Notifications Page</div>} />
-              <Route path="/profile" element={<div>Profile Page</div>} />
-              <Route path="/settings" element={<div>Settings Page</div>} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="cart" element={<div>Cart Page</div>} />
+              <Route path="notifications" element={<div>Notifications Page</div>} />
+              <Route path="profile" element={<div>Profile Page</div>} />
+              <Route path="settings" element={<div>Settings Page</div>} />
               {/* Game routes */}
-              <Route path="/games/mobile" element={<div>Mobile Games</div>} />
-              <Route path="/games/web" element={<div>Web Games</div>} />
-              <Route path="/games/blockchain" element={<div>Blockchain Games</div>} />
+              <Route path="games/mobile" element={<div>Mobile Games</div>} />
+              <Route path="games/web" element={<div>Web Games</div>} />
+              <Route path="games/blockchain" element={<div>Blockchain Games</div>} />
               
               {/* Blogs route */}
-              <Route path="/blogs" element={<div>Blogs</div>} />
-            </Route>
-
-            {/* Admin Protected Routes - Using the new AdminProtectedRoute component */}
-            <Route element={<AdminProtectedRoute />}>
-              {/* Admin routes */}
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<div>Admin Users Management</div>} />
-              <Route path="/admin/products" element={<div>Admin Products Management</div>} />
-              <Route path="/admin/orders" element={<div>Admin Orders Management</div>} />
-              <Route path="/admin/settings" element={<div>Admin Settings</div>} />
+              <Route path="blogs" element={<div>Blogs</div>} />
             </Route>
 
             {/* Redirect root to dashboard if authenticated, otherwise to login */}
             <Route 
-              path="/" 
+              path="" 
               element={
                 isAuthenticated ? 
                 <Navigate to="/dashboard" replace /> : 
                 <Navigate to="/login" replace />
               } 
             />
-        </Routes>
-      </Container>
-    </div>
+          </Routes>
+        </UserLayout>
+      } />
+    </Routes>
   );
 };
 

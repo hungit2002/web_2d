@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Button, Table } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../store/slices/authSlice';
+import { isAdminSession } from '../utils/session';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -11,7 +12,7 @@ const AdminDashboard = () => {
   
   useEffect(() => {
     // Check if user is admin, if not redirect to login
-    if (!user?.isAdmin) {
+    if (!isAdminSession()) {
       navigate('/admin/login');
     }
   }, [user, navigate]);

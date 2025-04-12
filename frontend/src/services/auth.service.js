@@ -7,21 +7,33 @@ export const register = async (userData) => {
   return response.data;
 };
 
+export const login = async (credentials) => {
+  const response = await axios.post(`${API_URL}/auth/login`, credentials);
+  return {
+    success: true,
+    data: {
+      user: {
+        ...response.data.user,
+        roles: response.data.user.roles || []
+      },
+      token: response.data.token
+    }
+  };
+};
+
 export const verifyRegistration = async (email, code, userData) => {
   const response = await axios.post(`${API_URL}/auth/verify`, {
     email,
     code,
     ...userData,
   });
-  return response.data;
-};
-
-export const login = async (credentials) => {
-  const response = await axios.post(`${API_URL}/auth/login`, credentials);
   return {
     success: true,
     data: {
-      user: response.data.user,
+      user: {
+        ...response.data.user,
+        roles: response.data.user.roles || []
+      },
       token: response.data.token
     }
   };

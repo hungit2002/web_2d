@@ -5,6 +5,7 @@ const { saveVerificationCode, verifyCode } = require('./redis.service');
 const db = require('../models');
 const { Op } = require('sequelize');
 const { ADMIN_ROLE_NAME } = require('../constant');
+const { CUSTOMER_ROLE_ID } = require('../constant');
 
 const generateRandomCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -13,10 +14,26 @@ const generateRandomCode = () => {
 const login = async (email, password) => {
   const user = await db.User.findOne({
     where: { email },
+    include: [{
+      model: db.Role,
+      through: { 
+        model: db.UserRole,
+        attributes: [] 
+      },
+      as: 'roles',
+      attributes: ['id', 'role_name'],
+      required: false
+    }]
   });
 
   if (!user) {
     throw new Error('Invalid email or password');
+  }
+
+  // Check if user has customer role
+  const hasCustomerRole = user.roles && user.roles.some(role => role.id === CUSTOMER_ROLE_ID);
+  if (!hasCustomerRole) {
+    throw new Error('Invalid user credentials');
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -24,7 +41,11 @@ const login = async (email, password) => {
     throw new Error('Invalid email or password');
   }
 
-  const token = generateToken({ id: user.id, email: user.email });
+  const token = generateToken({ 
+    id: user.id, 
+    email: user.email,
+    roles: user.roles.map(role => role.role_name)
+  });
 
   return {
     user: {
@@ -32,6 +53,59 @@ const login = async (email, password) => {
       email: user.email,
       fullName: user.fullName,
       phone: user.phone,
+      roles: user.roles.map(role => role.role_name)
+    },
+    token,
+  };
+};
+
+const verifyAndCompleteRegistration = async (email, code, userData) => {
+  // Verify code
+  const isValid = await verifyCode(email, code);
+  if (!isValid) {
+    throw new Error('Invalid or expired verification code');
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+  // Create user
+  const user = await db.User.create({
+    ...userData,
+    password: hashedPassword,
+  });
+
+  // Assign customer role
+  await db.UserRole.create({
+    user_id: user.id,
+    role_id: CUSTOMER_ROLE_ID
+  });
+
+  // Fetch user with roles
+  const userWithRoles = await db.User.findOne({
+    where: { id: user.id },
+    include: [{
+      model: db.Role,
+      through: { attributes: [] },
+      as: 'roles',
+      attributes: ['id', 'role_name']
+    }]
+  });
+
+  // Generate token
+  const token = generateToken({ 
+    id: user.id, 
+    email: user.email,
+    roles: userWithRoles.roles.map(role => role.role_name)
+  });
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      phone: user.phone,
+      roles: userWithRoles.roles.map(role => role.role_name)
     },
     token,
   };
@@ -61,36 +135,6 @@ const register = async (userData) => {
   await sendVerificationEmail(email, code);
 
   return { message: 'Verification code sent successfully' };
-};
-
-const verifyAndCompleteRegistration = async (email, code, userData) => {
-  // Verify code
-  const isValid = await verifyCode(email, code);
-  if (!isValid) {
-    throw new Error('Invalid or expired verification code');
-  }
-
-  // Hash password
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-  // Create user
-  const user = await db.User.create({
-    ...userData,
-    password: hashedPassword,
-  });
-
-  // Generate token
-  const token = generateToken({ id: user.id, email: user.email });
-
-  return {
-    user: {
-      id: user.id,
-      email: user.email,
-      fullName: user.fullName,
-      phone: user.phone,
-    },
-    token,
-  };
 };
 
 // New functions for forgot password

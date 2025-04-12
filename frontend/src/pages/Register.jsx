@@ -61,8 +61,22 @@ const Register = () => {
       } else {
         const { email, verificationCode, ...userData } = data;
         const result = await verifyRegistration(email, verificationCode, userData);
-        dispatch(setCredentials(result));
+        if (result.success) {
+        const { user, token } = result.data;
+        const action = setCredentials({ 
+          user: {
+            id: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            phone: user.phone,
+            roles: user.roles
+          }, 
+          token 
+        });
+        dispatch(action);
+
         navigate('/dashboard');
+        }
       }
     } catch (error) {
       dispatch(setError(error.response?.data?.error || 'Something went wrong'));

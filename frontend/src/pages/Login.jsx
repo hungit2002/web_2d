@@ -45,7 +45,8 @@ const Login = () => {
             id: user.id,
             email: user.email,
             fullName: user.fullName,
-            phone: user.phone
+            phone: user.phone,
+            roles: user.roles
           }, 
           token 
         });
