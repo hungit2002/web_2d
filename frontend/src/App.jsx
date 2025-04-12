@@ -21,6 +21,8 @@ import { getAccessToken, isAdminSession } from "./utils/session.js";
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
+import Footer from './components/Footer';
+import Terms from './pages/Terms.jsx';
 
 // Admin Layout Component
 const AdminLayout = ({ children }) => {
@@ -97,6 +99,7 @@ const AdminLayout = ({ children }) => {
 };
 
 // User Layout Component
+// Update UserLayout component
 const UserLayout = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(getAccessToken());
   const location = useLocation();
@@ -111,7 +114,7 @@ const UserLayout = ({ children }) => {
   }, [location, authState]);
   
   return (
-    <div className="UserApp">
+    <div className="UserApp d-flex flex-column min-vh-100">
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
           {/* Logo - Always visible */}
@@ -216,9 +219,10 @@ const UserLayout = ({ children }) => {
         </Container>
       </Navbar>
 
-      <Container className="mt-4">
+      <Container className="mt-4 flex-grow-1">
         {children}
       </Container>
+      <Footer />
     </div>
   );
 };
@@ -304,6 +308,7 @@ const AppContent = () => {
               
               {/* Blogs route */}
               <Route path="blogs" element={<div>Blogs</div>} />
+              <Route path="terms" element={<Terms />} />
             </Route>
 
             {/* Redirect root to dashboard if authenticated, otherwise to login */}
