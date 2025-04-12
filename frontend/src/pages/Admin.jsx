@@ -8,6 +8,7 @@ import Products from './admin/Products';
 import Orders from './admin/Orders';
 import Settings from './admin/Settings';
 import Dashboard from './admin/Dashboard';
+import Banners from './admin/Banners'; // Add this import
 
 const Admin = () => {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ const Admin = () => {
         <Route path="dashboard" element={<Dashboard user={user}></Dashboard>} />
         <Route path="users" element={<Users />} />
         <Route path="products" element={<Products />} />
+        <Route path="banners" element={<Banners />} /> {/* Add this route */}
         <Route path="orders" element={<Orders />} />
         <Route path="settings" element={<Settings />} />
         <Route path="profile" element={<div>Admin Profile</div>} />
