@@ -23,6 +23,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import Footer from './components/Footer';
 import Terms from './pages/Terms.jsx';
+import Profile from './pages/Profile.jsx';
 
 // Admin Layout Component
 const AdminLayout = ({ children }) => {
@@ -299,7 +300,7 @@ const AppContent = () => {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="cart" element={<div>Cart Page</div>} />
               <Route path="notifications" element={<div>Notifications Page</div>} />
-              <Route path="profile" element={<div>Profile Page</div>} />
+              <Route path="profile" element={<Profile/>} />
               <Route path="settings" element={<div>Settings Page</div>} />
               {/* Game routes */}
               <Route path="games/mobile" element={<div>Mobile Games</div>} />

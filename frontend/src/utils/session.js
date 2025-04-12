@@ -13,3 +13,7 @@ export const isCustomerSession = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     return user?.roles?.includes(CUSTOMER_ROLE_NAME) || false
 }
+export const getUserSession = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user || null
+}
