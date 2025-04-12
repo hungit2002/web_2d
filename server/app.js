@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const sequelize = require('./config/database');
 const authRoutes = require('./routes/auth.routes');
+const roleRoutes = require('./routes/role.routes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ sequelize.sync({ alter: true })
 const exampleRoutes = require('./routes/exampleRoutes');
 app.use('/api/examples', exampleRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/roles', roleRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -53,4 +55,4 @@ app.listen(PORT, () => {
 });
 
 // Export the app for testing
-module.exports = app; 
+module.exports = app;

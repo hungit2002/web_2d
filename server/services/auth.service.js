@@ -180,17 +180,14 @@ const adminLogin = async (email, password) => {
   });
 
   return {
-    success: true,
-    data: {
       user: {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
-        role: 'admin', // Set role explicitly for the frontend
+        role: ADMIN_ROLE_NAME, // Set role explicitly for the frontend
         isAdmin: true
       },
       token,
-    }
   };
 };
 

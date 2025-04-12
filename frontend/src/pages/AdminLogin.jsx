@@ -36,7 +36,6 @@ const AdminLogin = () => {
       setError('');
       
       const response = await adminLogin(data);
-      
       if (response.success) {
         const { user, token } = response.data;
         
