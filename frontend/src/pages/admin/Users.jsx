@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { getUsers, createUser, updateUserProfile, deleteUser, changePassword } from '../../services/user.service';
 import axios from 'axios';
 import { getAllRoles, assignRolesToUser } from '../../services/role.service';
+import { FaEdit, FaTrash, FaKey } from 'react-icons/fa';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -242,26 +243,29 @@ const Users = () => {
                       size="sm"
                       className="me-2"
                       onClick={() => handleShowModal(user)}
+                      title="Edit"
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="info"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => {
-                        setSelectedUser(user);
-                        setShowPasswordModal(true);
-                      }}
-                    >
-                      Change Password
+                      <FaEdit />
                     </Button>
                     <Button
                       variant="danger"
                       size="sm"
+                      className="me-2"
                       onClick={() => handleDelete(user.id)}
+                      title="Delete"
                     >
-                      Delete
+                      <FaTrash />
+                    </Button>
+                    <Button
+                      variant="info"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setShowPasswordModal(true);
+                      }}
+                      title="Change Password"
+                    >
+                      <FaKey />
                     </Button>
                   </td>
                 </tr>
