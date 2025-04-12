@@ -204,7 +204,6 @@ const adminLogin = async (email, password) => {
   if (!user) {
     throw new Error('Invalid admin credentials');
   }
-
   // Check if user has admin role
   const hasAdminRole = user.roles && user.roles.some(role => role.role_name === ADMIN_ROLE_NAME);
   
@@ -220,7 +219,8 @@ const adminLogin = async (email, password) => {
   const token = generateToken({ 
     id: user.id, 
     email: user.email,
-    isAdmin: true
+    isAdmin: true,
+    roles: user.roles.map(role => role.role_name)
   });
 
   return {
@@ -228,8 +228,8 @@ const adminLogin = async (email, password) => {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
-        role: ADMIN_ROLE_NAME, // Set role explicitly for the frontend
-        isAdmin: true
+        isAdmin: true,
+        roles: user.roles.map(role => role.role_name)
       },
       token,
   };

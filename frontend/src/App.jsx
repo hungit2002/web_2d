@@ -237,8 +237,6 @@ const AppContent = () => {
     
     // Check admin status
     const adminStatus = isAdminSession();
-    console.log(adminStatus);
-    
     const isAdminPath = location.pathname.startsWith('/admin');
     const isAdminLoginPath = location.pathname === '/admin/login';
     
@@ -312,9 +310,13 @@ const AppContent = () => {
             <Route 
               path="" 
               element={
-                isAuthenticated ? 
-                <Navigate to="/dashboard" replace /> : 
-                <Navigate to="/login" replace />
+                isAuthenticated ? (
+                  isAdminSession() ? 
+                  <Navigate to="/admin/dashboard" replace /> :
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               } 
             />
           </Routes>

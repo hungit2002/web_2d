@@ -44,7 +44,7 @@ const AdminLogin = () => {
             id: user.id,
             email: user.email,
             fullName: user.fullName,
-            role: user.role, // Make sure to include the admin role
+            roles: user.roles, // Make sure to include the admin role
             isAdmin: true
           }, 
           token 

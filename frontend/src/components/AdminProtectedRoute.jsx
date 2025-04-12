@@ -1,14 +1,13 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { getAccessToken } from '../utils/session';
+import { getAccessToken, isAdminSession } from '../utils/session';
 import { useSelector } from 'react-redux';
 
 const AdminProtectedRoute = () => {
   const isAuthenticated = getAccessToken();
-  const { user } = useSelector(state => state.auth);
   
   // Check if user is authenticated and has admin role
-  const isAdmin = user && user.role === 'admin';
+  const isAdmin = isAdminSession();
 
   if (!isAuthenticated) {
     // If not authenticated, redirect to login
