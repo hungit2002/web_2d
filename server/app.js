@@ -8,7 +8,8 @@ const roleRoutes = require('./routes/role.routes');
 const userRoutes = require('./routes/user.routes');
 const productRoutes = require('./routes/product.routes');
 const categoryRoutes = require('./routes/category.routes');
-const bannerRoutes = require('./routes/banner.routes'); // Add this line
+const bannerRoutes = require('./routes/banner.routes');
+const postRoutes = require('./routes/post.routes'); // Add this line
 const path = require('path');
 
 const app = express();
@@ -45,7 +46,8 @@ app.use('/api/roles', roleRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/banners', bannerRoutes); // Add this line
+app.use('/api/banners', bannerRoutes);
+app.use('/api/posts', postRoutes); // Add this line
 // Serve static files from uploads directory
 app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 

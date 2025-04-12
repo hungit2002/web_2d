@@ -59,6 +59,12 @@ module.exports = (sequelize) => {
       otherKey: 'role_id',
       as: 'roles'
     });
+    
+    // Add association with Post
+    User.hasMany(models.Post, {
+      foreignKey: 'user_id',
+      as: 'posts'
+    });
   };
 
   return User;

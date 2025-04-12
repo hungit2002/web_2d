@@ -5,7 +5,7 @@ import {useLocation} from "react-router-dom";
 import {useSelector} from "react-redux";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
-import {FaBoxOpen, FaChartBar, FaCog, FaShoppingBag, FaUsers, FaUserShield, FaImages } from "react-icons/fa";
+import {FaBoxOpen, FaChartBar, FaCog, FaShoppingBag, FaUsers, FaUserShield, FaImages, FaNewspaper } from "react-icons/fa";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
@@ -42,6 +42,9 @@ const AdminLayout = ({ children }) => {
                             </Nav.Link>
                             <Nav.Link href="/admin/banners">
                                 <FaImages className="me-1" /> Banners
+                            </Nav.Link>
+                            <Nav.Link href="/admin/posts">
+                                <FaNewspaper className="me-1" /> Posts
                             </Nav.Link>
                             <Nav.Link href="/admin/orders">
                                 <FaShoppingBag className="me-1" /> Orders

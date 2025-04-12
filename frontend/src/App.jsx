@@ -17,6 +17,10 @@ import Profile from './pages/Profile.jsx';
 import Admin from './pages/Admin.jsx';
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import UserLayout from "./layouts/UserLayout.jsx";
+import Posts from './pages/Posts';
+import PostView from './pages/PostView';
+import PostEditor from './pages/PostEditor';
+import AdminPosts from './pages/admin/Posts';
 
 // AppContent component that uses Redux
 const AppContent = () => {
@@ -86,6 +90,7 @@ const AppContent = () => {
               <Route path="cart" element={<div>Cart Page</div>} />
               <Route path="notifications" element={<div>Notifications Page</div>} />
               <Route path="profile" element={<Profile/>} />
+              <Route path="posts" element={<Posts />} />
               <Route path="settings" element={<div>Settings Page</div>} />
               {/* Game routes */}
               <Route path="games/mobile" element={<div>Mobile Games</div>} />
@@ -129,3 +134,9 @@ function App() {
 }
 
 export default App;
+
+// In the Admin routes section:
+
+
+// In the User routes section (protected routes):
+

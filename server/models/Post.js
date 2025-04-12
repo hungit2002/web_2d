@@ -32,4 +32,11 @@ const Post = sequelize.define('Post', {
   deletedAt: 'deleted_at'
 });
 
+Post.associate = (models) => {
+  Post.belongsTo(models.User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+};
+
 module.exports = Post; 
