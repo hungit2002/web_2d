@@ -64,4 +64,12 @@ const Product = sequelize.define('Product', {
   deletedAt: 'deleted_at'
 });
 
-module.exports = Product; 
+// Add associations
+Product.associate = (models) => {
+  Product.belongsTo(models.Category, {
+    foreignKey: 'category_id',
+    as: 'category'
+  });
+};
+
+module.exports = Product;

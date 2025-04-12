@@ -18,11 +18,15 @@ if (config.use_env_variable) {
 const User = require('./User')(sequelize);
 const Role = require('./Role');
 const UserRole = require('./UserRole');
+const Product = require('./Product');
+const Category = require('./Category');
 
 // Add models to db object
 db.User = User;
 db.Role = Role;
 db.UserRole = UserRole;
+db.Product = Product;
+db.Category = Category;
 
 // Initialize associations
 Object.keys(db).forEach(modelName => {
