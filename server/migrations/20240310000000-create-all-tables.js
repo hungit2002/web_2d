@@ -112,6 +112,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true
       },
+      link: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
       is_hot: {
         type: Sequelize.BOOLEAN,
         defaultValue: false

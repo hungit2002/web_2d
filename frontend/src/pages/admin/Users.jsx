@@ -6,6 +6,7 @@ import { getUsers, createUser, updateUserProfile, deleteUser, changePassword } f
 import axios from 'axios';
 import { getAllRoles, assignRolesToUser } from '../../services/role.service';
 import { FaEdit, FaTrash, FaKey } from 'react-icons/fa';
+import { getUserSession } from '../../utils/session';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -219,7 +220,7 @@ const Users = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
+              {users?.filter(user=>user?.id !== getUserSession()?.id).map((user, index) => (
                 <tr key={user.id}>
                   <td>{index + 1}</td>
                   <td>{user.id}</td>

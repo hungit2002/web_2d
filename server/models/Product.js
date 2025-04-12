@@ -23,6 +23,10 @@ const Product = sequelize.define('Product', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  link: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
   is_hot: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
