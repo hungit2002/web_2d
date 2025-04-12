@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
-import { login } from '../services/auth.service';
+import { adminLogin } from '../services/auth.service';
 import { setCredentials } from '../store/slices/authSlice';
 
 const schema = yup.object().shape({
@@ -16,7 +16,7 @@ const schema = yup.object().shape({
     .required('Password is required'),
 });
 
-const Login = () => {
+const AdminLogin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [error, setError] = useState('');
@@ -35,7 +35,7 @@ const Login = () => {
       setLoading(true);
       setError('');
       
-      const response = await login(data);
+      const response = await adminLogin(data);
       
       if (response.success) {
         const { user, token } = response.data;
@@ -45,18 +45,19 @@ const Login = () => {
             id: user.id,
             email: user.email,
             fullName: user.fullName,
-            phone: user.phone
+            role: user.role, // Make sure to include the admin role
+            isAdmin: true
           }, 
           token 
         });
         
         dispatch(action);
         
-        navigate('/dashboard');
+        navigate('/admin/dashboard');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.response?.data?.error || 'An error occurred during login');
+      console.error('Admin login error:', err);
+      setError(err.response?.data?.error || 'Invalid admin credentials');
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,7 @@ const Login = () => {
         <Col md={6}>
           <div className="card shadow">
             <div className="card-body p-4">
-              <h2 className="text-center mb-4">Login</h2>
+              <h2 className="text-center mb-4">Admin Login</h2>
               
               {error && (
                 <Alert variant="danger" className="mb-3">
@@ -81,7 +82,7 @@ const Login = () => {
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter admin email"
                     {...register('email')}
                     isInvalid={!!errors.email}
                   />
@@ -94,7 +95,7 @@ const Login = () => {
                   <Form.Label>Password</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Enter admin password"
                     {...register('password')}
                     isInvalid={!!errors.password}
                   />
@@ -110,27 +111,13 @@ const Login = () => {
                     size="lg"
                     disabled={loading}
                   >
-                    {loading ? 'Logging in...' : 'Login'}
+                    {loading ? 'Logging in...' : 'Admin Login'}
                   </Button>
                 </div>
 
                 <div className="text-center mt-3">
-                  <Link to="/forgot-password" className="text-decoration-none">
-                    Forgot Password?
-                  </Link>
-                </div>
-
-                <div className="text-center mt-3">
-                  <span>Don't have an account? </span>
-                  <Link to="/register" className="text-decoration-none">
-                    Register
-                  </Link>
-                </div>
-                
-                {/* Add admin login link */}
-                <div className="text-center mt-4 pt-3 border-top">
-                  <Link to="/admin/login" className="btn btn-outline-secondary btn-sm">
-                    Admin Login
+                  <Link to="/login" className="text-decoration-none">
+                    Back to User Login
                   </Link>
                 </div>
               </Form>
@@ -142,4 +129,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;

@@ -16,7 +16,20 @@ if (config.use_env_variable) {
 
 // Load models
 const User = require('./User')(sequelize);
+const Role = require('./Role');
+const UserRole = require('./UserRole');
+
+// Add models to db object
 db.User = User;
+db.Role = Role;
+db.UserRole = UserRole;
+
+// Initialize associations
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
 // Sync database
 sequelize.sync({ alter: true }).then(() => {
@@ -28,4 +41,4 @@ sequelize.sync({ alter: true }).then(() => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db; 
+module.exports = db;

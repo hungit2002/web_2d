@@ -4,6 +4,7 @@ const { sendVerificationEmail } = require('../config/email');
 const { saveVerificationCode, verifyCode } = require('./redis.service');
 const db = require('../models');
 const { Op } = require('sequelize');
+const { ADMIN_ROLE_NAME } = require('../constant');
 
 const generateRandomCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -140,10 +141,64 @@ const resetPassword = async (email, code, newPassword) => {
   return { message: 'Password reset successfully' };
 };
 
+const adminLogin = async (email, password) => {
+  // Find user with their roles
+  const user = await db.User.findOne({
+    where: { email },
+    include: [{
+      model: db.Role,
+      through: { 
+        model: db.UserRole,
+        attributes: [] // Don't include junction table attributes
+      },
+      as: 'roles',
+      attributes: ['id', 'role_name'], // Only include these role attributes
+      required: false // Use left join to get all roles
+    }]
+  });
+
+  if (!user) {
+    throw new Error('Invalid admin credentials');
+  }
+
+  // Check if user has admin role
+  const hasAdminRole = user.roles && user.roles.some(role => role.role_name === ADMIN_ROLE_NAME);
+  
+  if (!hasAdminRole) {
+    throw new Error('Invalid admin credentials');
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new Error('Invalid admin credentials');
+  }
+
+  const token = generateToken({ 
+    id: user.id, 
+    email: user.email,
+    isAdmin: true
+  });
+
+  return {
+    success: true,
+    data: {
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        role: 'admin', // Set role explicitly for the frontend
+        isAdmin: true
+      },
+      token,
+    }
+  };
+};
+
 module.exports = {
   login,
   register,
   verifyAndCompleteRegistration,
   forgotPassword,
   resetPassword,
+  adminLogin
 };

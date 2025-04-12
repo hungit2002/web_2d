@@ -27,6 +27,18 @@ export const login = async (credentials) => {
   };
 };
 
+// Admin login function
+export const adminLogin = async (credentials) => {
+  const response = await axios.post(`${API_URL}/auth/admin/login`, credentials);
+  return {
+    success: true,
+    data: {
+      user: response.data.user,
+      token: response.data.token
+    }
+  };
+};
+
 // New functions for forgot password
 export const forgotPassword = async (email) => {
   const response = await axios.post(`${API_URL}/auth/forgot-password`, { email });

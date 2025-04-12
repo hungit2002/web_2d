@@ -48,5 +48,14 @@ module.exports = (sequelize) => {
     deletedAt: 'deleted_at'
   });
 
+  User.associate = (models) => {
+    User.belongsToMany(models.Role, {
+      through: models.UserRole,
+      foreignKey: 'user_id',
+      otherKey: 'role_id',
+      as: 'roles'
+    });
+  };
+
   return User;
-}; 
+};
