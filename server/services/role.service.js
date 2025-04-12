@@ -1,5 +1,9 @@
 const db = require('../models');
 
+const getAllRoles = async () => {
+  return await db.Role.findAll();
+};
+
 const createRole = async (roleName) => {
   const existingRole = await db.Role.findOne({ where: { role_name: roleName } });
   if (existingRole) {
@@ -8,26 +12,31 @@ const createRole = async (roleName) => {
   return await db.Role.create({ role_name: roleName });
 };
 
-const assignRoleToUser = async (userId, roleId) => {
+const assignRoleToUser = async (userId, roleIds) => {
   const user = await db.User.findByPk(userId);
   if (!user) {
     throw new Error('User not found');
   }
 
-  const role = await db.Role.findByPk(roleId);
-  if (!role) {
-    throw new Error('Role not found');
-  }
-
-  await db.UserRole.create({
-    user_id: userId,
-    role_id: roleId
+  // Remove all existing roles
+  await db.UserRole.destroy({
+    where: { user_id: userId }
   });
 
-  return { message: 'Role assigned successfully' };
+  // Add new roles
+  const rolePromises = roleIds.map(roleId => 
+    db.UserRole.create({
+      user_id: userId,
+      role_id: roleId
+    })
+  );
+
+  await Promise.all(rolePromises);
+  return { message: 'Roles updated successfully' };
 };
 
 module.exports = {
+  getAllRoles,
   createRole,
   assignRoleToUser
 };

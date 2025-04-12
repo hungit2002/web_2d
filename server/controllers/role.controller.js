@@ -1,4 +1,13 @@
-const { createRole, assignRoleToUser } = require('../services/role.service');
+const { createRole, assignRoleToUser, getAllRoles } = require('../services/role.service');
+
+const getRolesHandler = async (req, res) => {
+  try {
+    const roles = await getAllRoles();
+    res.json(roles);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
 const createRoleHandler = async (req, res) => {
   try {
@@ -12,8 +21,8 @@ const createRoleHandler = async (req, res) => {
 
 const assignRoleHandler = async (req, res) => {
   try {
-    const { userId, roleId } = req.body;
-    const result = await assignRoleToUser(userId, roleId);
+    const { userId, roleIds } = req.body;
+    const result = await assignRoleToUser(userId, roleIds);
     res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -21,6 +30,7 @@ const assignRoleHandler = async (req, res) => {
 };
 
 module.exports = {
+  getRolesHandler,
   createRoleHandler,
   assignRoleHandler
 };
