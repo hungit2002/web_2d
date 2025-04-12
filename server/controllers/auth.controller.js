@@ -1,4 +1,10 @@
-const { register, verifyAndCompleteRegistration, login } = require('../services/auth.service');
+const { 
+  register, 
+  verifyAndCompleteRegistration, 
+  login, 
+  forgotPassword, 
+  resetPassword 
+} = require('../services/auth.service');
 
 const registerUser = async (req, res) => {
   try {
@@ -32,8 +38,31 @@ const loginUser = async (req, res) => {
   }
 };
 
+// New controller functions for forgot password
+const forgotPasswordHandler = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const result = await forgotPassword(email);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const resetPasswordHandler = async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    const result = await resetPassword(email, code, newPassword);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   verifyRegistration,
   loginUser,
-}; 
+  forgotPasswordHandler,
+  resetPasswordHandler,
+};

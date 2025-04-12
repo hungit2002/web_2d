@@ -92,8 +92,58 @@ const verifyAndCompleteRegistration = async (email, code, userData) => {
   };
 };
 
+// New functions for forgot password
+const forgotPassword = async (email) => {
+  // Check if user exists
+  const user = await db.User.findOne({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new Error('User with this email does not exist');
+  }
+
+  // Generate verification code
+  const code = generateRandomCode();
+
+  // Save code to Redis
+  await saveVerificationCode(email, code);
+
+  // Send verification email
+  await sendVerificationEmail(email, code);
+
+  return { message: 'Verification code sent successfully' };
+};
+
+const resetPassword = async (email, code, newPassword) => {
+  // Verify code
+  const isValid = await verifyCode(email, code);
+  if (!isValid) {
+    throw new Error('Invalid or expired verification code');
+  }
+
+  // Find user
+  const user = await db.User.findOne({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Hash new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  // Update user password
+  await user.update({ password: hashedPassword });
+
+  return { message: 'Password reset successfully' };
+};
+
 module.exports = {
   login,
   register,
   verifyAndCompleteRegistration,
-}; 
+  forgotPassword,
+  resetPassword,
+};
