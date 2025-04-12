@@ -10,7 +10,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      full_name: {
+      fullName: {
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -36,6 +36,10 @@ module.exports = {
         allowNull: true
       },
       phone: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      avatar: {
         type: Sequelize.STRING,
         allowNull: true
       },
