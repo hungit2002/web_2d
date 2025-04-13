@@ -2,7 +2,7 @@
 import {useEffect, useState} from "react";
 import {getAccessToken} from "../utils/session.js";
 import {useLocation} from "react-router-dom";
-import {useSelector} from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
@@ -11,20 +11,29 @@ import {FaBell, FaShoppingCart, FaUser} from "react-icons/fa";
 import Badge from "react-bootstrap/Badge";
 import Footer from "../components/Footer.jsx";
 import axios from 'axios';
+import { fetchCartItems } from '../store/slices/cartSlice';
 
 const UserLayout = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(getAccessToken());
     const [categories, setCategories] = useState([]);
     const location = useLocation();
+    const dispatch = useDispatch();
     const authState = useSelector(state => state.auth);
+    const { count: cartItemCount } = useSelector(state => state.cart);
 
-    // These would typically come from your Redux store
-    const cartItemCount = 3; // Example value
-    const notificationCount = 5; // Example value
+    // Giá trị cứng cho thông báo
+    const notificationCount = 5;
 
     useEffect(() => {
         setIsAuthenticated(getAccessToken());
     }, [location, authState]);
+
+    // Fetch cart items when authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            dispatch(fetchCartItems());
+        }
+    }, [isAuthenticated, dispatch]);
 
     useEffect(() => {
         // Fetch categories from the API
@@ -108,6 +117,7 @@ const UserLayout = ({ children }) => {
                                     )}
                                 </Nav.Link>
 
+                                {/* Rest of the code remains the same */}
                                 {/* Notification Icon with Badge */}
                                 <Nav.Link href="/customer/notifications" className="position-relative me-3">
                                     <FaBell size={20} />

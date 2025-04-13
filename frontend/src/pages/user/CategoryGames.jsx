@@ -4,6 +4,8 @@ import { Container, Row, Col, Card, Button, Spinner, Form, InputGroup, Paginatio
 import { FaSearch, FaShoppingCart } from 'react-icons/fa';
 import { getCategoryById, getProductsByCategory, getProductById } from '../../services/categoryProduct.service';
 import { addToCart } from '../../services/cart.service';
+import { useDispatch } from 'react-redux';
+import { addItemToCart } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 const CategoryGames = () => {
   const { categoryId } = useParams();
@@ -87,10 +89,13 @@ const CategoryGames = () => {
       setLoadingProduct(false);
     }
   };
+  const dispatch = useDispatch();
+  
+  // Handle add to cart
   const handleAddToCart = async (product) => {
     try {
       setCartLoading(true);
-      await addToCart(product.id, 1);
+      await dispatch(addItemToCart({ productId: product.id, quantity: 1 })).unwrap();
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error('Error adding to cart:', err);

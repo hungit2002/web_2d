@@ -2,33 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Table, Form, Alert, Spinner } from 'react-bootstrap';
 import { FaTrash, FaArrowLeft, FaShoppingCart } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCartItems, updateCartItem, removeFromCart, clearCart } from '../../services/cart.service';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCartItems, updateCartItemQuantity, removeItemFromCart, clearCartItems } from '../../store/slices/cartSlice';
 
 const Cart = () => {
-  const [cart, setCart] = useState({ items: [], total: 0, count: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { items, total, count, loading, error } = useSelector(state => state.cart);
 
   // Fetch cart items on component mount
   useEffect(() => {
-    fetchCartItems();
-  }, []);
-
-  const fetchCartItems = async () => {
-    try {
-      setLoading(true);
-      const cartData = await getCartItems();
-      setCart(cartData);
-      setError(null);
-    } catch (err) {
-      console.error('Failed to fetch cart items:', err);
-      setError('Failed to load your cart. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    dispatch(fetchCartItems());
+  }, [dispatch]);
 
   // Handle quantity change
   const handleQuantityChange = async (cartItemId, newQuantity) => {
@@ -36,12 +22,9 @@ const Cart = () => {
     
     try {
       setUpdating(true);
-      await updateCartItem(cartItemId, newQuantity);
-      // Refresh cart after update
-      await fetchCartItems();
+      await dispatch(updateCartItemQuantity({ cartItemId, quantity: newQuantity })).unwrap();
     } catch (err) {
       console.error('Failed to update quantity:', err);
-      setError('Failed to update quantity. Please try again.');
     } finally {
       setUpdating(false);
     }
@@ -51,12 +34,9 @@ const Cart = () => {
   const handleRemoveItem = async (cartItemId) => {
     try {
       setUpdating(true);
-      await removeFromCart(cartItemId);
-      // Refresh cart after removal
-      await fetchCartItems();
+      await dispatch(removeItemFromCart(cartItemId)).unwrap();
     } catch (err) {
       console.error('Failed to remove item:', err);
-      setError('Failed to remove item. Please try again.');
     } finally {
       setUpdating(false);
     }
@@ -67,12 +47,10 @@ const Cart = () => {
     if (window.confirm('Are you sure you want to clear your cart?')) {
       try {
         setUpdating(true);
-        await clearCart();
-        // Refresh cart after clearing
-        await fetchCartItems();
+        await dispatch(clearCartItems()).unwrap();
+        dispatch(fetchCartItems());
       } catch (err) {
         console.error('Failed to clear cart:', err);
-        setError('Failed to clear your cart. Please try again.');
       } finally {
         setUpdating(false);
       }
@@ -101,7 +79,7 @@ const Cart = () => {
       
       {error && <Alert variant="danger">{error}</Alert>}
       
-      {cart.count === 0 ? (
+      {count === 0 ? (
         <Card className="text-center p-5">
           <Card.Body>
             <FaShoppingCart size={50} className="text-muted mb-3" />
@@ -122,7 +100,7 @@ const Cart = () => {
               <Card className="mb-4">
                 <Card.Header className="bg-white">
                   <div className="d-flex justify-content-between align-items-center">
-                    <h5 className="mb-0">Cart Items ({cart.count})</h5>
+                    <h5 className="mb-0">Cart Items ({count})</h5>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -145,7 +123,7 @@ const Cart = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {cart.items.map((item) => (
+                      {items.map((item) => (
                         <tr key={item.id}>
                           <td>
                             <div className="d-flex align-items-center">
@@ -231,7 +209,7 @@ const Cart = () => {
                 <Card.Body>
                   <div className="d-flex justify-content-between mb-3">
                     <span>Subtotal:</span>
-                    <span>${cart.total}</span>
+                    <span>${total}</span>
                   </div>
                   <div className="d-flex justify-content-between mb-3">
                     <span>Shipping:</span>
@@ -240,7 +218,7 @@ const Cart = () => {
                   <hr />
                   <div className="d-flex justify-content-between mb-3 fw-bold">
                     <span>Total:</span>
-                    <span>${cart.total}</span>
+                    <span>${total}</span>
                   </div>
                   <Button 
                     variant="success" 
