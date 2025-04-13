@@ -1,4 +1,4 @@
-const { createOrderFromCart, getUserOrders } = require('../services/order.service');
+const { createOrderFromCart, getUserOrders, getOrderById } = require('../services/order.service');
 
 // Create order from cart
 const createOrder = async (req, res) => {
@@ -26,7 +26,26 @@ const getOrders = async (req, res) => {
   }
 };
 
+// Get order by ID
+const getOrderByIdController = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const userId = req.user.id;
+    
+    const order = await getOrderById(userId, orderId);
+    res.json(order);
+  } catch (error) {
+    console.error('Error getting order:', error);
+    if (error.message === 'Order not found') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Export the functions
 module.exports = {
   createOrder,
-  getOrders
+  getOrders,
+  getOrderById: getOrderByIdController
 };

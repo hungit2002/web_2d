@@ -10,6 +10,7 @@ import Dashboard from './user/Dashboard';
 import Cart from './user/Cart'; // Import Cart component
 import axios from 'axios';
 import CategoryGames from './user/CategoryGames';
+import OrderConfirmation from './user/OrderConfirmation';
 
 const Customer = () => {
   const dispatch = useDispatch();
@@ -45,6 +46,7 @@ const Customer = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="posts" element={<Posts />} />
         <Route path="settings" element={<div>Settings Page</div>} />
+        <Route path="order-confirmation" element={<OrderConfirmation />} />
         
         {/* Dynamic category routes */}
         <Route path="games/category/:categoryId" element={<CategoryGames />} />

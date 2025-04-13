@@ -31,3 +31,36 @@ export const getUserOrders = async () => {
   
   return response.data;
 };
+
+export const getOrderById = async (orderId) => {
+    const response = await axios.get(
+      `${API_URL}/orders/${orderId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    
+    return response.data;
+  };
+  
+
+// Update order status
+export const updateOrderStatus = async (orderId, status, transactionId = null) => {
+    const response = await axios.patch(
+      `${API_URL}/api/orders/${orderId}/status`,
+      { 
+        status,
+        transactionId 
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    
+    return response.data;
+  };

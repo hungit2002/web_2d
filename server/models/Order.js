@@ -41,6 +41,7 @@ const Order = sequelize.define('Order', {
   deletedAt: 'deleted_at'
 });
 
+// Make sure your Order model has these associations
 Order.associate = (models) => {
   Order.belongsTo(models.User, {
     foreignKey: 'cid',

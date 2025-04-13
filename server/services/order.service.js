@@ -98,7 +98,40 @@ const getUserOrders = async (userId) => {
   return orders;
 };
 
+// Get order by ID
+const getOrderById = async (userId, orderId) => {
+  const order = await db.Order.findOne({
+    where: { 
+      id: orderId,
+      cid: userId // Ensure user can only access their own orders
+    },
+    include: [
+      {
+        model: db.Product,
+        as: 'products',
+        through: {
+          attributes: ['quantity', 'price']
+        },
+        include: [
+          {
+            model: db.Category,
+            as: 'category',
+            attributes: ['id', 'name']
+          }
+        ]
+      }
+    ]
+  });
+  
+  if (!order) {
+    throw new Error('Order not found');
+  }
+  
+  return order;
+};
+
 module.exports = {
   createOrderFromCart,
-  getUserOrders
+  getUserOrders,
+  getOrderById
 };

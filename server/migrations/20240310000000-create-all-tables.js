@@ -298,7 +298,6 @@ module.exports = {
       cid: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true
       },
       payment_method: {
         type: Sequelize.INTEGER,
