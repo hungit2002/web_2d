@@ -150,7 +150,7 @@ const UserLayout = ({ children }) => {
                                         onClick={() => {
                                             localStorage.removeItem('token');
                                             setIsAuthenticated(false);
-                                            window.location.href = '/login';
+                                            window.location.href = '/customer/login';
                                         }}
                                     >
                                         Logout

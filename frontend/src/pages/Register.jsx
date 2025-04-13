@@ -75,7 +75,7 @@ const Register = () => {
         });
         dispatch(action);
 
-        navigate('/dashboard');
+        navigate('/customer/dashboard');
         }
       }
     } catch (error) {

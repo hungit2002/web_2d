@@ -53,7 +53,7 @@ const Login = () => {
         
         dispatch(action);
         
-        navigate('/dashboard');
+        navigate('/customer/dashboard');
       }
     } catch (err) {
       console.error('Login error:', err);

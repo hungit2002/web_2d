@@ -92,7 +92,7 @@ const AppContent = () => {
                     <Navigate to="/admin/dashboard" replace /> :
                     <Navigate to="/customer/dashboard" replace />
                 ) : (
-                  <Navigate to="/login" replace />
+                  <Navigate to="/customer/login" replace />
                 )
               }
             />
@@ -107,7 +107,7 @@ const AppContent = () => {
               <Navigate to="/admin/dashboard" replace /> :
               <Navigate to="/customer/dashboard" replace />
           ) : (
-            <Navigate to="/login" replace />
+            <Navigate to="/customer/login" replace />
           )
         }
       />
