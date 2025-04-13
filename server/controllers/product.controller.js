@@ -12,8 +12,9 @@ const getProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || '';
-
-    const result = await getAllProducts(page, limit, search);
+    const categoryId = req.query.category_id || null;  // Get optional category_id parameter
+    
+    const result = await getAllProducts(page, limit, search, categoryId);  // Pass category_id to service
     res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });

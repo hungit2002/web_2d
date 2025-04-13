@@ -60,7 +60,7 @@ const Category = () => {
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div>
                                         <p className="text-danger mb-0">${product.priceSale}</p>
-                                        {product.priceOrigin > product.priceSale && (
+                                        {Number(product.priceOrigin) > Number(product.priceSale) && (
                                             <small className="text-muted text-decoration-line-through">
                                                 ${product.priceOrigin}
                                             </small>
@@ -77,7 +77,7 @@ const Category = () => {
                                 </div>
                             </Card.Body>
                             <Card.Footer className="bg-white">
-                                <a href={`/category/${category.id}`} className="btn btn-outline-primary btn-sm w-100">
+                                <a href={`/customer/games/category/${category.id}`} className="btn btn-outline-primary btn-sm w-100">
                                     View All Products
                                 </a>
                             </Card.Footer>

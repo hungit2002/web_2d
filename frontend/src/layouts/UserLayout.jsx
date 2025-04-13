@@ -10,9 +10,11 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import {FaBell, FaShoppingCart, FaUser} from "react-icons/fa";
 import Badge from "react-bootstrap/Badge";
 import Footer from "../components/Footer.jsx";
+import axios from 'axios';
 
 const UserLayout = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(getAccessToken());
+    const [categories, setCategories] = useState([]);
     const location = useLocation();
     const authState = useSelector(state => state.auth);
 
@@ -23,6 +25,21 @@ const UserLayout = ({ children }) => {
     useEffect(() => {
         setIsAuthenticated(getAccessToken());
     }, [location, authState]);
+
+    useEffect(() => {
+        // Fetch categories from the API
+        const fetchCategories = async () => {
+            try {
+                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const response = await axios.get(`${API_URL}/categories`);
+                setCategories(response.data.categories || []);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     return (
         <div className="UserApp d-flex flex-column min-vh-100">
@@ -50,9 +67,14 @@ const UserLayout = ({ children }) => {
 
                                 {/* Games Dropdown */}
                                 <NavDropdown title="Games" id="games-dropdown">
-                                    <NavDropdown.Item href="/customer/games/mobile">Game Mobile</NavDropdown.Item>
-                                    <NavDropdown.Item href="/customer/games/web">Game Web</NavDropdown.Item>
-                                    <NavDropdown.Item href="/customer/games/blockchain">Blockchain</NavDropdown.Item>
+                                    {categories.map(category => (
+                                        <NavDropdown.Item 
+                                            key={category.id} 
+                                            href={`/customer/games/category/${category.id}`}
+                                        >
+                                            {category.name}
+                                        </NavDropdown.Item>
+                                    ))}
                                 </NavDropdown>
 
                                 {/* Blogs Link */}

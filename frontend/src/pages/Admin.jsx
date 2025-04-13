@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { logout } from '../store/slices/authSlice';
 import { isAdminSession } from '../utils/session';
-import Users from './admin/Users';
 import Products from './admin/Products';
 import Orders from './admin/Orders';
 import Settings from './admin/Settings';
 import Dashboard from './admin/Dashboard';
 import Banners from './admin/Banners'; // Add this import
 import Posts from './admin/Posts';
+import Users from './admin/users';
 
 const Admin = () => {
   const dispatch = useDispatch();

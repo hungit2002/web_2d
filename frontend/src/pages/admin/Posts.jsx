@@ -296,7 +296,7 @@ const Posts = () => {
                 <Modal.Body>
                     {selectedPost && (
                         <div>
-                            <h5>Author: {selectedPost.user?.username || 'Unknown'}</h5>
+                            <h5>Author: {selectedPost.user?.fullName || 'Unknown'}</h5>
                             <p>Created: {new Date(selectedPost.created_at).toLocaleString()}</p>
                             <hr />
                             <div

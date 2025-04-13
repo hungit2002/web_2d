@@ -3,25 +3,36 @@ const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
-const getAllProducts = async (page = 1, limit = 10, search = '') => {
+const getAllProducts = async (page = 1, limit = 10, search = '', categoryId = null) => {
   const offset = (page - 1) * limit;
-  const whereClause = search ? {
-    [Op.or]: [
-      { name: { [Op.like]: `%${search}%` } },
-      { description: { [Op.like]: `%${search}%` } }
-    ]
-  } : {};
-
+  
+  // Build where clause based on search and categoryId
+  let whereClause = {};
+  
+  if (search) {
+    whereClause = {
+      [Op.or]: [
+        { name: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } }
+      ]
+    };
+  }
+  
+  // Add category filter if categoryId is provided
+  if (categoryId) {
+    whereClause.category_id = categoryId;
+  }
+  
   const { count, rows } = await db.Product.findAndCountAll({
     where: whereClause,
-    limit,
-    offset,
+    limit: limit ? parseInt(limit) : null,
+    offset: offset ? parseInt(offset) : null,
+    order: [['id', 'DESC']],
     include: [{
       model: db.Category,
       as: 'category',
       attributes: ['id', 'name']
-    }],
-    order: [['id', 'DESC']]
+    }]
   });
 
   return {
