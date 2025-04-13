@@ -7,6 +7,7 @@ import Terms from './user/Terms';
 import Profile from './user/Profile';
 import Posts from './admin/Posts';
 import Dashboard from './user/Dashboard';
+import Cart from './user/Cart'; // Import Cart component
 import axios from 'axios';
 import CategoryGames from './user/CategoryGames';
 
@@ -39,7 +40,7 @@ const Customer = () => {
     <>
       <Routes>
         <Route path="dashboard" element={<Dashboard/>} />
-        <Route path="cart" element={<div>Cart Page</div>} />
+        <Route path="cart" element={<Cart />} /> {/* Update this line */}
         <Route path="notifications" element={<div>Notifications Page</div>} />
         <Route path="profile" element={<Profile />} />
         <Route path="posts" element={<Posts />} />

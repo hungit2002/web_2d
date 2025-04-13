@@ -10,6 +10,7 @@ const productRoutes = require('./routes/product.routes');
 const categoryRoutes = require('./routes/category.routes');
 const bannerRoutes = require('./routes/banner.routes');
 const postRoutes = require('./routes/post.routes'); // Add this line
+const cartRoutes = require('./routes/cart.routes'); // Add this line
 const path = require('path');
 
 const app = express();
@@ -48,6 +49,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/posts', postRoutes); // Add this line
+app.use('/api/cart', cartRoutes); // Add this line
 // Serve static files from uploads directory
 app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
