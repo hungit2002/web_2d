@@ -6,6 +6,7 @@ import { logout } from '../store/slices/authSlice';
 import Terms from './user/Terms';
 import Profile from './user/Profile';
 import Posts from './admin/Posts';
+import Dashboard from './user/Dashboard';
 
 const Customer = () => {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ const Customer = () => {
   return (
     <>
       <Routes>
-        <Route path="dashboard" element={<div>Dashboard Page</div>} />
+        <Route path="dashboard" element={<Dashboard/>} />
         <Route path="cart" element={<div>Cart Page</div>} />
         <Route path="notifications" element={<div>Notifications Page</div>} />
         <Route path="profile" element={<Profile />} />
