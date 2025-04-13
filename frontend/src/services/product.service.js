@@ -2,6 +2,16 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+export const getProductsByCategories = async () => {
+  const token = localStorage.getItem('token');
+  const response = await axios.get(`${API_URL}/products/by-categories`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data;
+};
+
 // Get all products with pagination and search
 export const getProducts = async (page = 1, limit = 10, search = '') => {
   const token = localStorage.getItem('token');

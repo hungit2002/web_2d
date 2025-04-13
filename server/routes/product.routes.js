@@ -5,7 +5,8 @@ const {
   getProduct, 
   createNewProduct,
   updateProductById, 
-  deleteProductById
+  deleteProductById,
+  getProductsByCategories  // Import the new function
 } = require('../controllers/product.controller');
 const { adminAuthMiddleware } = require('../middlewares/auth.middleware');
 const multer = require('multer');
@@ -13,6 +14,7 @@ const upload = multer();
 
 // Public routes
 router.get('/', getProducts);
+router.get('/by-categories', getProductsByCategories);  // Add the new route
 router.get('/:id', getProduct);
 
 // Protected routes (admin only)

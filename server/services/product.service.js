@@ -123,10 +123,42 @@ const deleteProduct = async (productId) => {
   return { message: 'Product deleted successfully' };
 };
 
+const getOneProductPerCategory = async () => {
+  // Get all categories
+  const categories = await db.Category.findAll();
+  
+  // For each category, get one product
+  const results = [];
+  
+  for (const category of categories) {
+    const product = await db.Product.findOne({
+      where: { category_id: category.id },
+      include: [{
+        model: db.Category,
+        as: 'category',
+        attributes: ['id', 'name']
+      }]
+    });
+    
+    if (product) {
+      results.push({
+        category: {
+          id: category.id,
+          name: category.name
+        },
+        product
+      });
+    }
+  }
+  
+  return { categoryProducts: results };
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getOneProductPerCategory  // Add the new function to exports
 };

@@ -3,7 +3,8 @@ const {
   getProductById, 
   createProduct, 
   updateProduct, 
-  deleteProduct 
+  deleteProduct,
+  getOneProductPerCategory  // Import the new function
 } = require('../services/product.service');
 
 const getProducts = async (req, res) => {
@@ -61,10 +62,20 @@ const deleteProductById = async (req, res) => {
   }
 };
 
+const getProductsByCategories = async (req, res) => {
+  try {
+    const result = await getOneProductPerCategory();
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getProduct,
   createNewProduct,
   updateProductById,
-  deleteProductById
+  deleteProductById,
+  getProductsByCategories  // Export the new function
 };
