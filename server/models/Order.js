@@ -20,6 +20,11 @@ const Order = sequelize.define('Order', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
+  status: {
+    type: DataTypes.ENUM('pending', 'processing', 'completed', 'cancelled'),
+    defaultValue: 'pending',
+    allowNull: false
+  },
   deleted_at: {
     type: DataTypes.DATE,
     allowNull: true
@@ -33,4 +38,4 @@ const Order = sequelize.define('Order', {
   deletedAt: 'deleted_at'
 });
 
-module.exports = Order; 
+module.exports = Order;
