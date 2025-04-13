@@ -16,7 +16,7 @@ const AdminProtectedRoute = () => {
   
   if (!isAdmin) {
     // If authenticated but not admin, redirect to regular dashboard
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="user/dashboard" replace />;
   }
 
   // If admin, render the child routes

@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Form, Button, Container, Row, Col, Alert, Image } from 'react-bootstrap';
-import { getUserProfile, updateUserProfile } from '../services/user.service';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCredentials } from '../store/slices/authSlice';
-import { vietnameseCities } from '../constants/cities';
-import { getUserSession } from '../utils/session';
+import { setCredentials } from '../../store/slices/authSlice';
+import { vietnameseCities } from '../../constants/cities';
+import { getUserSession } from '../../utils/session';
+import { getUserProfile, updateUserProfile } from '../../services/user.service';
 
 const schema = yup.object().shape({
   fullName: yup.string().required('Full name is required'),

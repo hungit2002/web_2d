@@ -184,7 +184,7 @@ const Posts = () => {
                                             }}
                                         />
                                     </td>
-                                    <td>{post.user?.username || 'Unknown'}</td>
+                                    <td>{post.user?.fullName || 'Unknown'}</td>
                                     <td>{new Date(post.created_at).toLocaleString()}</td>
                                     <td>
                                         <Button

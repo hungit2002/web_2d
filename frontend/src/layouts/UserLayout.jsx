@@ -29,7 +29,7 @@ const UserLayout = ({ children }) => {
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Container>
                     {/* Logo - Always visible */}
-                    <Navbar.Brand href="/">
+                    <Navbar.Brand href="/customer">
                         <img
                             src="/logo.png"
                             width="30"
@@ -46,17 +46,17 @@ const UserLayout = ({ children }) => {
                         {isAuthenticated ? (
                             <Nav className="me-auto">
                                 {/* Home Link */}
-                                <Nav.Link href="/">Home</Nav.Link>
+                                <Nav.Link href="/customer">Home</Nav.Link>
 
                                 {/* Games Dropdown */}
                                 <NavDropdown title="Games" id="games-dropdown">
-                                    <NavDropdown.Item href="/games/mobile">Game Mobile</NavDropdown.Item>
-                                    <NavDropdown.Item href="/games/web">Game Web</NavDropdown.Item>
-                                    <NavDropdown.Item href="/games/blockchain">Blockchain</NavDropdown.Item>
+                                    <NavDropdown.Item href="/customer/games/mobile">Game Mobile</NavDropdown.Item>
+                                    <NavDropdown.Item href="/customer/games/web">Game Web</NavDropdown.Item>
+                                    <NavDropdown.Item href="/customer/games/blockchain">Blockchain</NavDropdown.Item>
                                 </NavDropdown>
 
                                 {/* Blogs Link */}
-                                <Nav.Link href="/blogs">Blogs</Nav.Link>
+                                <Nav.Link href="/customer/blogs">Blogs</Nav.Link>
                             </Nav>
                         ) : (
                             <Nav className="me-auto">
@@ -72,7 +72,7 @@ const UserLayout = ({ children }) => {
                         ) : (
                             <Nav>
                                 {/* Cart Icon with Badge */}
-                                <Nav.Link href="/cart" className="position-relative me-3">
+                                <Nav.Link href="/customer/cart" className="position-relative me-3">
                                     <FaShoppingCart size={20} />
                                     {cartItemCount > 0 && (
                                         <Badge
@@ -87,7 +87,7 @@ const UserLayout = ({ children }) => {
                                 </Nav.Link>
 
                                 {/* Notification Icon with Badge */}
-                                <Nav.Link href="/notifications" className="position-relative me-3">
+                                <Nav.Link href="/customer/notifications" className="position-relative me-3">
                                     <FaBell size={20} />
                                     {notificationCount > 0 && (
                                         <Badge
@@ -111,8 +111,8 @@ const UserLayout = ({ children }) => {
                                     id="user-dropdown"
                                     align="end"
                                 >
-                                    <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
-                                    <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                                    <NavDropdown.Item href="/customer/profile">Profile</NavDropdown.Item>
+                                    <NavDropdown.Item href="/customer/settings">Settings</NavDropdown.Item>
                                     <NavDropdown.Divider />
                                     <NavDropdown.Item
                                         onClick={() => {
