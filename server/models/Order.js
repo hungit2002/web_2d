@@ -10,7 +10,10 @@ const Order = sequelize.define('Order', {
   cid: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    unique: true
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   },
   payment_method: {
     type: DataTypes.INTEGER,
@@ -37,5 +40,19 @@ const Order = sequelize.define('Order', {
   paranoid: true,
   deletedAt: 'deleted_at'
 });
+
+Order.associate = (models) => {
+  Order.belongsTo(models.User, {
+    foreignKey: 'cid',
+    as: 'user'
+  });
+  
+  Order.belongsToMany(models.Product, {
+    through: models.OrderProduct,
+    foreignKey: 'order_id',
+    otherKey: 'product_id',
+    as: 'products'
+  });
+};
 
 module.exports = Order;

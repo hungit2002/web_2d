@@ -23,6 +23,8 @@ const Category = require('./Category');
 const Banner = require('./Banner');
 const Post = require('./Post');
 const CartItem = require('./CartItem');
+const Order = require('./Order');
+const OrderProduct = require('./OrderProduct');
 // Add models to db object
 db.User = User;
 db.Role = Role;
@@ -32,6 +34,8 @@ db.Category = Category;
 db.Banner = Banner;
 db.Post = Post;
 db.CartItem = CartItem;
+db.Order = Order;
+db.OrderProduct = OrderProduct;
 
 // Initialize associations
 Object.keys(db).forEach(modelName => {

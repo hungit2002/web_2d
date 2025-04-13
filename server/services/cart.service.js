@@ -103,11 +103,12 @@ const removeCartItem = async (userId, cartItemId) => {
 };
 
 // Clear user's cart
-const clearUserCart = async (userId) => {
+const clearUserCart = async (userId, transaction = null) => {
   await db.CartItem.destroy({
     where: {
       user_id: userId
-    }
+    },
+    transaction
   });
   
   return true;

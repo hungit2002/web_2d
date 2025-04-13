@@ -17,6 +17,15 @@ const OrderProduct = sequelize.define('OrderProduct', {
       model: 'products',
       key: 'id'
     }
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  },
+  price: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
   }
 }, {
   tableName: 'order_products',
@@ -25,4 +34,4 @@ const OrderProduct = sequelize.define('OrderProduct', {
   updatedAt: 'updated_at'
 });
 
-module.exports = OrderProduct; 
+module.exports = OrderProduct;

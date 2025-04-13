@@ -7,7 +7,7 @@ const {
   updateCategoryById, 
   deleteCategoryById 
 } = require('../controllers/category.controller');
-const { authMiddleware, adminAuthMiddleware } = require('../middlewares/auth.middleware');
+const { adminAuthMiddleware } = require('../middlewares/auth.middleware');
 
 // Public routes
 router.get('/', getCategories);

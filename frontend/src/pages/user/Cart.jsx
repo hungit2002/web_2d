@@ -4,6 +4,7 @@ import { FaTrash, FaArrowLeft, FaShoppingCart } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCartItems, updateCartItemQuantity, removeItemFromCart, clearCartItems } from '../../store/slices/cartSlice';
+import { createOrder } from '../../services/order.service';
 
 const Cart = () => {
   const [updating, setUpdating] = useState(false);
@@ -58,9 +59,24 @@ const Cart = () => {
   };
 
   // Handle checkout
-  const handleCheckout = () => {
-    // Navigate to checkout page (to be implemented)
-    navigate('/customer/checkout');
+  const handleCheckout = async () => {
+    try {
+      setUpdating(true);
+      
+      // Call the order service to create an order
+      const orderData = await createOrder(1);
+      
+      // Refresh cart
+      dispatch(fetchCartItems());
+      
+      // Navigate to order confirmation page (to be implemented)
+      navigate('/customer/order-confirmation', { state: { order: orderData.order } });
+    } catch (err) {
+      console.error('Failed to checkout:', err);
+      // You might want to show an error message to the user
+    } finally {
+      setUpdating(false);
+    }
   };
 
   if (loading) {
