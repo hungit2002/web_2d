@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Table, Form, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Table, Form, Spinner, Modal } from 'react-bootstrap';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { getDashboardStats, getRevenueData, getUserRegistrationData, getOrderData } from '../../services/dashboard.service';
@@ -17,6 +17,10 @@ function Dashboard({ user }) {
         totalOrders: 0,
         recentOrders: []
     });
+    // Add state for modal
+    const [showOrderModal, setShowOrderModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+
     const [revenuePeriod, setRevenuePeriod] = useState('month');
     const [userPeriod, setUserPeriod] = useState('month');
     const [orderPeriod, setOrderPeriod] = useState('month');
@@ -45,7 +49,7 @@ function Dashboard({ user }) {
             setLoading(true);
             const data = await getDashboardStats();
             setStats(data);
-            
+
             // Fetch initial chart data
             await Promise.all([
                 fetchRevenueData(revenuePeriod),
@@ -152,6 +156,12 @@ function Dashboard({ user }) {
         );
     }
 
+    // Add function to handle opening the order modal
+    const handleViewOrder = (order) => {
+        setSelectedOrder(order);
+        setShowOrderModal(true);
+    };
+
     return (
         <Container fluid className="mt-4">
             <Row>
@@ -195,7 +205,7 @@ function Dashboard({ user }) {
                             <Card className="mb-4">
                                 <Card.Header className="d-flex justify-content-between align-items-center">
                                     <h5 className="mb-0">Revenue Overview</h5>
-                                    <Form.Select 
+                                    <Form.Select
                                         style={{ width: '150px' }}
                                         value={revenuePeriod}
                                         onChange={(e) => setRevenuePeriod(e.target.value)}
@@ -216,7 +226,7 @@ function Dashboard({ user }) {
                                     <Card className="mb-4">
                                         <Card.Header className="d-flex justify-content-between align-items-center">
                                             <h5 className="mb-0">User Registrations</h5>
-                                            <Form.Select 
+                                            <Form.Select
                                                 style={{ width: '150px' }}
                                                 value={userPeriod}
                                                 onChange={(e) => setUserPeriod(e.target.value)}
@@ -237,7 +247,7 @@ function Dashboard({ user }) {
                                     <Card className="mb-4">
                                         <Card.Header className="d-flex justify-content-between align-items-center">
                                             <h5 className="mb-0">Order Statistics</h5>
-                                            <Form.Select 
+                                            <Form.Select
                                                 style={{ width: '150px' }}
                                                 value={orderPeriod}
                                                 onChange={(e) => setOrderPeriod(e.target.value)}
@@ -253,6 +263,67 @@ function Dashboard({ user }) {
                                     </Card>
                                 </Col>
                             </Row>
+
+                            <Modal show={showOrderModal} onHide={() => setShowOrderModal(false)} size="lg">
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Order Details #{selectedOrder?.id}</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    {selectedOrder && (
+                                        <>
+                                            <Row>
+                                                <Col md={6}>
+                                                    <p><strong>Customer:</strong> {selectedOrder.user?.fullName || 'N/A'}</p>
+                                                    <p><strong>Email:</strong> {selectedOrder.user?.email || 'N/A'}</p>
+                                                    <p><strong>Phone:</strong> {selectedOrder.user?.phone || 'N/A'}</p>
+                                                    <p><strong>Order Date:</strong> {formatDate(selectedOrder.created_at)}</p>
+                                                </Col>
+                                                <Col md={6}>
+                                                    <p><strong>Status:</strong>
+                                                        <span className={`badge bg-${selectedOrder.status === 'completed' ? 'success' :
+                                                                selectedOrder.status === 'pending' ? 'warning' : 'secondary'
+                                                            } ms-2`}>
+                                                            {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                                                        </span>
+                                                    </p>
+                                                    <p><strong>Total Amount:</strong> {formatCurrency(selectedOrder.price)}</p>
+                                                </Col>
+                                            </Row>
+
+                                            <h5 className="mt-4">Order Items</h5>
+                                            {selectedOrder.products && selectedOrder.products.length > 0 ? (
+                                                <Table striped bordered hover>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Product</th>
+                                                            <th>Quantity</th>
+                                                            <th>Price</th>
+                                                            <th>Subtotal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {selectedOrder.products.map((item, index) => (
+                                                            <tr key={index}>
+                                                                <td>{item?.name || 'Product'}</td>
+                                                                <td>{item?.OrderProduct?.quantity}</td>
+                                                                <td>{formatCurrency(item?.OrderProduct?.price)}</td>
+                                                                <td>{formatCurrency(item?.OrderProduct?.price * item?.OrderProduct?.quantity)}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </Table>
+                                            ) : (
+                                                <p>No items found for this order.</p>
+                                            )}
+                                        </>
+                                    )}
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button variant="secondary" onClick={() => setShowOrderModal(false)}>
+                                        Close
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
 
                             <h5 className="mt-4">Recent Orders</h5>
                             <Table striped bordered hover responsive>
@@ -275,17 +346,20 @@ function Dashboard({ user }) {
                                                 <td>{formatDate(order.created_at)}</td>
                                                 <td>{formatCurrency(order.price)}</td>
                                                 <td>
-                                                    <span className={`badge bg-${
-                                                        order.status === 'completed' ? 'success' : 
-                                                        order.status === 'pending' ? 'warning' : 'secondary'
-                                                    }`}>
+                                                    <span className={`badge bg-${order.status === 'completed' ? 'success' :
+                                                            order.status === 'pending' ? 'warning' : 'secondary'
+                                                        }`}>
                                                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <Link to={`/admin/orders/${order.id}`}>
-                                                        <Button size="sm" variant="outline-primary">View</Button>
-                                                    </Link>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline-primary"
+                                                        onClick={() => handleViewOrder(order)}
+                                                    >
+                                                        View
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         ))
@@ -296,7 +370,7 @@ function Dashboard({ user }) {
                                     )}
                                 </tbody>
                             </Table>
-                            
+
                             <div className="text-end mt-3">
                                 <Link to="/admin/orders">
                                     <Button variant="primary">View All Orders</Button>

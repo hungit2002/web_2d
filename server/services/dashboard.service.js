@@ -58,8 +58,23 @@ const getDashboardStats = async () => {
           {
             model: db.User,
             as: 'user',
-            attributes: ['id', 'fullName', 'email'],
+            attributes: ['id', 'fullName', 'email','phone'],
             required: false
+          },
+          {
+            model: db.Product,
+            as: 'products',
+            through: {
+              attributes: ['quantity', 'price', 'licence'] // Removed 'image' and 'name'
+            },
+            attributes: ['id', 'name', 'image'], // Added these attributes to the Product model instead
+            include: [
+              {
+                model: db.Category,
+                as: 'category',
+                attributes: ['id', 'name']
+              }
+            ]
           }
         ]
       });
