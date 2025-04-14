@@ -109,7 +109,9 @@ const OrderConfirmation = () => {
                         <FaCheckCircle size={50} className="text-success mb-3" />
                         <h3>Payment Successful!</h3>
                         <p className="text-muted">Your order has been placed and payment has been received.</p>
+                        <p className='text-muted'>We have sent the activation code to your email.</p>
                         <p>Order ID: <strong>{order.id}</strong></p>
+                        <p>Transaction ID: <strong>{order.transaction_id}</strong></p>
                         <Link to="/customer/orders">
                             <Button variant="primary" className="mt-3">
                                 View My Orders

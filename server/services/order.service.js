@@ -1,6 +1,7 @@
 const db = require('../models');
 const { Op } = require('sequelize');
 const { clearUserCart } = require('./cart.service');
+const { sendProductLicensesEmail } = require('../config/email');
 
 // Create a new order from cart items
 const createOrderFromCart = async (userId, paymentMethod = 1) => {
@@ -153,6 +154,11 @@ const updateOrderStatus = async (orderId, status, transactionId, userId) => {
 
   // Generate licences for all products in the order
   await generateLicencesForOrder(orderId);
+  
+  // If order is completed, send license email
+  if (status === 'completed') {
+    await sendOrderLicenseEmail(orderId);
+  }
 
   return order;
 };
@@ -208,11 +214,69 @@ const generateLicencesForOrder = async (orderId) => {
   }
 };
 
+// Send email with product licenses
+const sendOrderLicenseEmail = async (orderId) => {
+  try {
+    // Get the order with user info
+    const order = await db.Order.findOne({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // Get user email
+    const user = await db.User.findByPk(order.cid);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Get all order products with licenses
+    const orderProducts = await db.OrderProduct.findAll({
+      where: { order_id: orderId }
+    });
+
+    if (!orderProducts || orderProducts.length === 0) {
+      throw new Error('No products found for this order');
+    }
+
+    // Build products array with names and licenses
+    const productsWithLicenses = [];
+    
+    for (const item of orderProducts) {
+      // Get product information
+      const product = await db.Product.findByPk(item.product_id);
+      if (!product) {
+        console.warn(`Product with ID ${item.product_id} not found`);
+        continue;
+      }
+      
+      productsWithLicenses.push({
+        name: product.name,
+        licence: item.licence
+      });
+    }
+
+    // Send email if we have products with licenses
+    if (productsWithLicenses.length > 0) {
+      await sendProductLicensesEmail(user.email, orderId, productsWithLicenses);
+      console.log(`License email sent to ${user.email} for order ${orderId}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error sending license email:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   createOrderFromCart,
   getUserOrders,
   getOrderById,
   updateOrderStatus,
   generateAndUpdateLicence,
-  generateLicencesForOrder
+  generateLicencesForOrder,
+  sendOrderLicenseEmail
 };

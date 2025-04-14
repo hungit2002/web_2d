@@ -6,7 +6,8 @@ const {
   getOrders,
   getOrderById,
   updateOrderStatus,
-  generateLicences
+  generateLicences,
+  sendLicenseEmailForOrder
 } = require('../controllers/order.controller');
 
 // Create order
@@ -23,5 +24,8 @@ router.patch('/:id/status', authMiddleware, updateOrderStatus);
 
 // Generate licences for order
 router.post('/:id/licences', authMiddleware, generateLicences);
+
+// Send license email for order
+router.post('/:id/send-license-email', authMiddleware, sendLicenseEmailForOrder);
 
 module.exports = router;

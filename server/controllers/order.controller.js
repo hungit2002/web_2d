@@ -1,4 +1,4 @@
-const { createOrderFromCart, getUserOrders, getOrderById, updateOrderStatus, generateLicencesForOrder } = require('../services/order.service');
+const { createOrderFromCart, getUserOrders, getOrderById, updateOrderStatus, generateLicencesForOrder, sendOrderLicenseEmail } = require('../services/order.service');
 
 // Create order from cart
 const createOrder = async (req, res) => {
@@ -86,11 +86,40 @@ const generateLicences = async (req, res) => {
   }
 };
 
+// Send license email for order
+const sendLicenseEmailForOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const userId = req.user.id;
+    
+    // First check if the order belongs to the user
+    const order = await getOrderById(userId, orderId);
+    
+    // Send license email
+    await sendOrderLicenseEmail(orderId);
+    
+    res.json({
+      success: true,
+      message: 'License email sent successfully'
+    });
+  } catch (error) {
+    console.error('Error sending license email:', error);
+    if (error.message === 'Order not found') {
+      return res.status(404).json({ error: error.message });
+    }
+    if (error.message === 'User not found') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Export the functions
 module.exports = {
   createOrder,
   getOrders,
   getOrderById: getOrderByIdController,
   updateOrderStatus: updateOrderStatusController,
-  generateLicences
+  generateLicences,
+  sendLicenseEmailForOrder
 };
