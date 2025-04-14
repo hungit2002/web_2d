@@ -5,7 +5,7 @@ import {getAccessToken, isAdminSession} from "../utils/session.js";
 const ProtectedRoute = () => {
   const isAuthenticated = getAccessToken()
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/customer/login" replace />;
   }
   const isAdmin = isAdminSession();
   if (isAdmin) {
