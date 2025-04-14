@@ -32,7 +32,7 @@ const getPostById = async (postId) => {
     include: [{
       model: db.User,
       as: 'user',
-      attributes: ['id', 'username', 'email', 'avatar']
+      attributes: ['id', 'fullName', 'email', 'avatar']
     }]
   });
   

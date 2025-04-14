@@ -11,7 +11,8 @@ import Cart from './user/Cart'; // Import Cart component
 import axios from 'axios';
 import CategoryGames from './user/CategoryGames';
 import OrderConfirmation from './user/OrderConfirmation';
-
+import Blogs from './Blogs';
+import BlogDetail from './BlogDetail';
 const Customer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -45,6 +46,8 @@ const Customer = () => {
         <Route path="notifications" element={<div>Notifications Page</div>} />
         <Route path="profile" element={<Profile />} />
         <Route path="posts" element={<Posts />} />
+        <Route path="/blogs" element={<Blogs />} />
+        <Route path="/blogs/:id" element={<BlogDetail />} />
         <Route path="settings" element={<div>Settings Page</div>} />
         <Route path="order-confirmation" element={<OrderConfirmation />} />
         
