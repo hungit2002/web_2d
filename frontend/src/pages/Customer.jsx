@@ -14,6 +14,7 @@ import OrderConfirmation from './user/OrderConfirmation';
 import Blogs from './Blogs';
 import BlogDetail from './BlogDetail';
 import UserOrders from './user/UserOrders';
+import Order from './user/Order';
 const Customer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ const Customer = () => {
         <Route path="settings" element={<div>Settings Page</div>} />
         <Route path="order-confirmation" element={<OrderConfirmation />} />
         <Route path="orders" element={<UserOrders />} />
+        <Route path="orders/:id" element={<Order />} />
         {/* Dynamic category routes */}
         <Route path="games/category/:categoryId" element={<CategoryGames />} />
         

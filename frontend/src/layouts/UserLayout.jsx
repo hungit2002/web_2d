@@ -144,6 +144,7 @@ const UserLayout = ({ children }) => {
                                     align="end"
                                 >
                                     <NavDropdown.Item href="/customer/profile">Profile</NavDropdown.Item>
+                                    <NavDropdown.Item href="/customer/orders">Orders</NavDropdown.Item>
                                     <NavDropdown.Item href="/customer/settings">Settings</NavDropdown.Item>
                                     <NavDropdown.Divider />
                                     <NavDropdown.Item

@@ -96,7 +96,7 @@ const UserOrders = () => {
                     <td>
                       <button
                         className="btn btn-sm btn-primary"
-                        onClick={() => window.location.href = `/orders/${order.id}`}
+                        onClick={() => window.location.href = `/customer/orders/${order.id}`}
                       >
                         View Details
                       </button>
