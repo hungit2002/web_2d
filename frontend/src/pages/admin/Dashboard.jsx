@@ -5,6 +5,9 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { getDashboardStats, getRevenueData, getUserRegistrationData, getOrderData } from '../../services/dashboard.service';
 import { Link } from 'react-router-dom';
 import { formatCurrency } from '../../utils/formatters';
+// Import Excel export libraries
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -17,16 +20,17 @@ function Dashboard({ user }) {
         totalOrders: 0,
         recentOrders: []
     });
-    // Add state for modal
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
-
     const [revenuePeriod, setRevenuePeriod] = useState('month');
     const [userPeriod, setUserPeriod] = useState('month');
     const [orderPeriod, setOrderPeriod] = useState('month');
     const [revenueData, setRevenueData] = useState({ labels: [], datasets: [] });
     const [userData, setUserData] = useState({ labels: [], datasets: [] });
     const [orderData, setOrderData] = useState({ labels: [], datasets: [] });
+    
+    // Add state for export loading
+    const [exportLoading, setExportLoading] = useState(false);
 
     useEffect(() => {
         fetchDashboardData();
@@ -162,6 +166,52 @@ function Dashboard({ user }) {
         setShowOrderModal(true);
     };
 
+    // Function to export revenue data to Excel
+    const exportRevenueToExcel = async () => {
+        try {
+            setExportLoading(true);
+            
+            // Get the data from the current period
+            const data = await getRevenueData(revenuePeriod);
+            
+            // Create worksheet data
+            const worksheetData = [
+                ['Period', 'Revenue Amount'],
+                ...data.labels.map((label, index) => [
+                    label,
+                    data.values[index]
+                ])
+            ];
+            
+            // Create a worksheet
+            const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+            
+            // Set column widths
+            const wscols = [
+                { wch: 20 }, // Period column width
+                { wch: 15 }  // Revenue column width
+            ];
+            ws['!cols'] = wscols;
+            
+            // Create a workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Revenue Data');
+            
+            // Generate Excel file
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const fileData = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            
+            // Save the file
+            const fileName = `Revenue_${revenuePeriod}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            saveAs(fileData, fileName);
+        } catch (error) {
+            console.error('Error exporting revenue data:', error);
+            alert('Failed to export revenue data. Please try again.');
+        } finally {
+            setExportLoading(false);
+        }
+    };
+
     return (
         <Container fluid className="mt-4">
             <Row>
@@ -201,19 +251,39 @@ function Dashboard({ user }) {
                                 </Col>
                             </Row>
 
-                            {/* Revenue Chart */}
+                            {/* Revenue Chart with Export Button */}
                             <Card className="mb-4">
                                 <Card.Header className="d-flex justify-content-between align-items-center">
                                     <h5 className="mb-0">Revenue Overview</h5>
-                                    <Form.Select
-                                        style={{ width: '150px' }}
-                                        value={revenuePeriod}
-                                        onChange={(e) => setRevenuePeriod(e.target.value)}
-                                    >
-                                        <option value="day">Daily</option>
-                                        <option value="month">Monthly</option>
-                                        <option value="year">Yearly</option>
-                                    </Form.Select>
+                                    <div className="d-flex align-items-center">
+                                        <Form.Select
+                                            style={{ width: '150px', marginRight: '10px' }}
+                                            value={revenuePeriod}
+                                            onChange={(e) => setRevenuePeriod(e.target.value)}
+                                        >
+                                            <option value="day">Daily</option>
+                                            <option value="month">Monthly</option>
+                                            <option value="year">Yearly</option>
+                                        </Form.Select>
+                                        <Button 
+                                            variant="success" 
+                                            size="sm" 
+                                            onClick={exportRevenueToExcel}
+                                            disabled={exportLoading}
+                                        >
+                                            {exportLoading ? (
+                                                <>
+                                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                    <span className="ms-1">Exporting...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <i className="bi bi-file-earmark-excel me-1"></i>
+                                                    Export Excel
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
                                 </Card.Header>
                                 <Card.Body>
                                     <Line options={chartOptions} data={revenueData} />

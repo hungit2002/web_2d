@@ -264,9 +264,44 @@ const getOrderData = async (period = 'month') => {
   }
 };
 
+// Add this function to your existing dashboard.service.js file
+
+// Export revenue data to Excel
+const exportRevenueData = async (period = 'month') => {
+  try {
+    const { ranges, labels } = generateDateRanges(period);
+    const values = [];
+
+    for (const range of ranges) {
+      const totalRevenue = await db.Order.sum('price', {
+        where: {
+          created_at: {
+            [Op.between]: [range.start, range.end]
+          },
+          status: 'completed'
+        }
+      });
+
+      values.push(totalRevenue || 0);
+    }
+
+    return { 
+      labels, 
+      values,
+      periodType: period,
+      generatedAt: new Date()
+    };
+  } catch (error) {
+    console.error('Error exporting revenue data:', error);
+    throw error;
+  }
+};
+
+// Add this to your module.exports
 module.exports = {
   getDashboardStats,
   getRevenueData,
   getUserRegistrationData,
-  getOrderData
+  getOrderData,
+  exportRevenueData
 };

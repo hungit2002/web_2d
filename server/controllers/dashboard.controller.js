@@ -47,9 +47,28 @@ const getOrderData = async (req, res) => {
   }
 };
 
+// Add this function to your existing dashboard.controller.js
+
+// Export revenue data
+const exportRevenueData = async (req, res) => {
+  try {
+    const { period } = req.query;
+    const data = await dashboardService.exportRevenueData(period);
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=revenue_${period}_${new Date().toISOString().split('T')[0]}.json`);
+    res.json(data);
+  } catch (error) {
+    console.error('Error exporting revenue data:', error);
+    res.status(500).json({ error: 'Failed to export revenue data' });
+  }
+};
+
+// Add this to your module.exports
 module.exports = {
   getDashboardStats,
   getRevenueData,
   getUserRegistrationData,
-  getOrderData
+  getOrderData,
+  exportRevenueData
 };
