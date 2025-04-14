@@ -8,6 +8,7 @@ const Blogs = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -15,6 +16,7 @@ const Blogs = () => {
         setLoading(true);
         const data = await getBlogs(page, 10, search);
         setBlogs(data.posts);
+        setTotalPages(data.totalPages);
         setError(null);
       } catch (err) {
         setError(err.message || 'Failed to fetch blogs');
@@ -32,7 +34,7 @@ const Blogs = () => {
   return (
     <div className="container mt-5">
       <h1 className="mb-4">Blog Posts</h1>
-      
+
       <div className="mb-4">
         <input
           type="text"
@@ -48,9 +50,35 @@ const Blogs = () => {
           <div key={blog.id} className="col-md-4 mb-4">
             <div className="card h-100">
               <div className="card-body">
-                <h5 className="card-title">{blog.title}</h5>
+                <div className="author-info d-flex align-items-center mb-4">
+                  {blog?.user?.avatar ? (
+                    <img
+                      src={blog.user.avatar}
+                      alt={blog.user.fullName || 'Author'}
+                      className="rounded-circle me-3"
+                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
+                      style={{ width: '50px', height: '50px', color: 'white' }}
+                    >
+                      {blog?.user?.fullName?.charAt(0) || 'A'}
+                    </div>
+                  )}
+                  <div>
+                    <h6 className="mb-0">{blog?.user?.fullName || 'Anonymous'}</h6>
+                    {blog?.user?.email && <small className="text-muted">{blog.user.email}</small>}
+                    <div><small className="text-muted">Published: {new Date(blog.created_at).toLocaleDateString()}</small></div>
+                  </div>
+                </div>
                 <p className="card-text">
-                  {blog.content?.substring(0, 150)}...
+                  {blog.content ?
+                    <span dangerouslySetInnerHTML={{
+                      __html: blog.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...'
+                    }} /> :
+                    'No content available'
+                  }
                 </p>
                 <Link to={`/customer/blogs/${blog.id}`} className="btn btn-primary">
                   Read More
@@ -72,6 +100,7 @@ const Blogs = () => {
         <button
           className="btn btn-outline-primary"
           onClick={() => setPage((p) => p + 1)}
+          disabled={page === totalPages}
         >
           Next
         </button>
@@ -80,4 +109,4 @@ const Blogs = () => {
   );
 };
 
-export default Blogs; 
+export default Blogs;
