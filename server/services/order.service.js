@@ -45,13 +45,15 @@ const createOrderFromCart = async (userId, paymentMethod = 1) => {
         order_id: order.id,
         product_id: item.product_id,
         quantity: item.quantity,
-        price: item.product.priceSale
+        price: item.product.priceSale,
+        licence: null
       }, { transaction });
 
       orderProducts.push({
         productId: item.product_id,
         quantity: item.quantity,
-        price: item.product.priceSale
+        price: item.product.priceSale,
+        licence: null
       });
     }
 
@@ -149,12 +151,68 @@ const updateOrderStatus = async (orderId, status, transactionId, userId) => {
     transaction_id: transactionId || null
   });
 
+  // Generate licences for all products in the order
+  await generateLicencesForOrder(orderId);
+
   return order;
+};
+
+// Generate and update licence for order product
+const generateAndUpdateLicence = async (orderId, productId) => {
+  try {
+    const orderProduct = await db.OrderProduct.findOne({
+      where: {
+        order_id: orderId,
+        product_id: productId
+      }
+    });
+    
+    if (!orderProduct) {
+      throw new Error('Order product not found');
+    }
+    
+    // Generate a unique licence code (you can customize this according to your needs)
+    const licenceCode = `LIC-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    
+    // Update the order product with the licence code
+    await orderProduct.update({
+      licence: licenceCode
+    });
+    
+    return licenceCode;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Generate licences for all products in an order
+const generateLicencesForOrder = async (orderId) => {
+  try {
+    const orderProducts = await db.OrderProduct.findAll({
+      where: { order_id: orderId }
+    });
+    
+    const licences = [];
+    
+    for (const orderProduct of orderProducts) {
+      const licence = await generateAndUpdateLicence(orderProduct.order_id, orderProduct.product_id);
+      licences.push({
+        productId: orderProduct.product_id,
+        licence
+      });
+    }
+    
+    return licences;
+  } catch (error) {
+    throw error;
+  }
 };
 
 module.exports = {
   createOrderFromCart,
   getUserOrders,
   getOrderById,
-  updateOrderStatus
+  updateOrderStatus,
+  generateAndUpdateLicence,
+  generateLicencesForOrder
 };

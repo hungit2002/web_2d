@@ -26,6 +26,10 @@ const OrderProduct = sequelize.define('OrderProduct', {
   price: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
+  },
+  licence: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, {
   tableName: 'order_products',

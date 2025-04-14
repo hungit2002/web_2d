@@ -1,4 +1,4 @@
-const { createOrderFromCart, getUserOrders, getOrderById, updateOrderStatus } = require('../services/order.service');
+const { createOrderFromCart, getUserOrders, getOrderById, updateOrderStatus, generateLicencesForOrder } = require('../services/order.service');
 
 // Create order from cart
 const createOrder = async (req, res) => {
@@ -61,10 +61,36 @@ const updateOrderStatusController = async (req, res) => {
   }
 };
 
+// Generate licences for order
+const generateLicences = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const userId = req.user.id;
+    
+    // First, check if the order belongs to the user
+    const order = await getOrderById(userId, orderId);
+    
+    // Generate licences for all products in the order
+    const licences = await generateLicencesForOrder(orderId);
+    
+    res.json({
+      message: 'Licences generated successfully',
+      licences
+    });
+  } catch (error) {
+    console.error('Error generating licences:', error);
+    if (error.message === 'Order not found') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Export the functions
 module.exports = {
   createOrder,
   getOrders,
   getOrderById: getOrderByIdController,
-  updateOrderStatus: updateOrderStatusController
+  updateOrderStatus: updateOrderStatusController,
+  generateLicences
 };
