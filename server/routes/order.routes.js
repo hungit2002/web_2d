@@ -1,18 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { createOrder, getOrders, getOrderById } = require('../controllers/order.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
+const {
+  createOrder,
+  getOrders,
+  getOrderById,
+  updateOrderStatus
+} = require('../controllers/order.controller');
 
-// Apply authentication middleware to all routes
-router.use(authMiddleware);
-
-// Create order from cart
-router.post('/', createOrder);
+// Create order
+router.post('/', authMiddleware, createOrder);
 
 // Get user orders
-router.get('/', getOrders);
+router.get('/', authMiddleware, getOrders);
 
-// Get specific order by ID
-router.get('/:id', getOrderById);
+// Get order by ID
+router.get('/:id', authMiddleware, getOrderById);
+
+// Update order status
+router.patch('/:id/status', authMiddleware, updateOrderStatus);
 
 module.exports = router;

@@ -49,7 +49,7 @@ export const getOrderById = async (orderId) => {
 // Update order status
 export const updateOrderStatus = async (orderId, status, transactionId = null) => {
     const response = await axios.patch(
-      `${API_URL}/api/orders/${orderId}/status`,
+      `${API_URL}/orders/${orderId}/status`,
       { 
         status,
         transactionId 

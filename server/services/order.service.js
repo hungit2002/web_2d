@@ -130,8 +130,31 @@ const getOrderById = async (userId, orderId) => {
   return order;
 };
 
+// Update order status
+const updateOrderStatus = async (orderId, status, transactionId, userId) => {
+  const order = await db.Order.findOne({
+    where: { 
+      id: orderId,
+      cid: userId // Ensure user can only access their own orders
+    }
+  });
+
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  // Update order status and transaction ID
+  await order.update({
+    status,
+    transaction_id: transactionId || null
+  });
+
+  return order;
+};
+
 module.exports = {
   createOrderFromCart,
   getUserOrders,
-  getOrderById
+  getOrderById,
+  updateOrderStatus
 };
