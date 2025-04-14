@@ -104,7 +104,7 @@ const getUserOrders = async (userId) => {
 // Get order by ID
 const getOrderById = async (userId, orderId) => {
   const order = await db.Order.findOne({
-    where: { 
+    where: {
       id: orderId,
       cid: userId // Ensure user can only access their own orders
     },
@@ -125,18 +125,18 @@ const getOrderById = async (userId, orderId) => {
       }
     ]
   });
-  
+
   if (!order) {
     throw new Error('Order not found');
   }
-  
+
   return order;
 };
 
 // Update order status
 const updateOrderStatus = async (orderId, status, transactionId, userId) => {
   const order = await db.Order.findOne({
-    where: { 
+    where: {
       id: orderId,
       cid: userId // Ensure user can only access their own orders
     }
@@ -154,7 +154,7 @@ const updateOrderStatus = async (orderId, status, transactionId, userId) => {
 
   // Generate licences for all products in the order
   await generateLicencesForOrder(orderId);
-  
+
   // If order is completed, send license email
   if (status === 'completed') {
     await sendOrderLicenseEmail(orderId);
@@ -172,19 +172,19 @@ const generateAndUpdateLicence = async (orderId, productId) => {
         product_id: productId
       }
     });
-    
+
     if (!orderProduct) {
       throw new Error('Order product not found');
     }
-    
+
     // Generate a unique licence code (you can customize this according to your needs)
     const licenceCode = `LIC-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    
+
     // Update the order product with the licence code
     await orderProduct.update({
       licence: licenceCode
     });
-    
+
     return licenceCode;
   } catch (error) {
     throw error;
@@ -197,9 +197,9 @@ const generateLicencesForOrder = async (orderId) => {
     const orderProducts = await db.OrderProduct.findAll({
       where: { order_id: orderId }
     });
-    
+
     const licences = [];
-    
+
     for (const orderProduct of orderProducts) {
       const licence = await generateAndUpdateLicence(orderProduct.order_id, orderProduct.product_id);
       licences.push({
@@ -207,7 +207,7 @@ const generateLicencesForOrder = async (orderId) => {
         licence
       });
     }
-    
+
     return licences;
   } catch (error) {
     throw error;
@@ -243,7 +243,7 @@ const sendOrderLicenseEmail = async (orderId) => {
 
     // Build products array with names and licenses
     const productsWithLicenses = [];
-    
+
     for (const item of orderProducts) {
       // Get product information
       const product = await db.Product.findByPk(item.product_id);
@@ -251,7 +251,7 @@ const sendOrderLicenseEmail = async (orderId) => {
         console.warn(`Product with ID ${item.product_id} not found`);
         continue;
       }
-      
+
       productsWithLicenses.push({
         name: product.name,
         licence: item.licence
@@ -271,6 +271,78 @@ const sendOrderLicenseEmail = async (orderId) => {
   }
 };
 
+const getAdminOrdersService = async (status = null, page = 1, limit = 10, search = null) => {
+  try {
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalCount = await db.Order.count({
+      where: status ? {
+        status: {
+          [Op.eq]: status
+        }
+      } : {}
+    });
+
+    // Get paginated orders
+    const orders = await db.Order.findAll({
+      where: status ? {
+        status: {
+          [Op.eq]: status
+        }
+      } : {},
+      order: [['created_at', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      include: [
+        {
+          model: db.User,
+          as: 'user',
+          attributes: ['id', 'fullName', 'email', 'avatar', 'phone'],
+          where: search ? {
+            [Op.or]: [
+              { fullName: { [Op.like]: `%${search}%` } },
+              { email: { [Op.like]: `%${search}%` } },
+              { phone: { [Op.like]: `%${search}%` } }
+            ]
+          } : null
+        },
+        {
+          model: db.Product,
+          as: 'products',
+          through: {
+            attributes: ['quantity', 'price', 'licence'] // Removed 'image' and 'name'
+          },
+          attributes: ['id', 'name', 'image'], // Added these attributes to the Product model instead
+          include: [
+            {
+              model: db.Category,
+              as: 'category',
+              attributes: ['id', 'name']
+            }
+          ]
+        }
+      ]
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      orders,
+      currentPage: page,
+      totalPages,
+      totalItems: totalCount,
+      itemsPerPage: limit
+    };
+  }
+  catch (error) {
+    console.error('Error getting orders:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   createOrderFromCart,
   getUserOrders,
@@ -278,5 +350,6 @@ module.exports = {
   updateOrderStatus,
   generateAndUpdateLicence,
   generateLicencesForOrder,
-  sendOrderLicenseEmail
+  sendOrderLicenseEmail,
+  getAdminOrdersService
 };

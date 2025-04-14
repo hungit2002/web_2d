@@ -1,4 +1,4 @@
-const { createOrderFromCart, getUserOrders, getOrderById, updateOrderStatus, generateLicencesForOrder, sendOrderLicenseEmail } = require('../services/order.service');
+const { createOrderFromCart, getUserOrders, getOrderById, updateOrderStatus, generateLicencesForOrder, sendOrderLicenseEmail,getAdminOrdersService } = require('../services/order.service');
 
 // Create order from cart
 const createOrder = async (req, res) => {
@@ -114,6 +114,22 @@ const sendLicenseEmailForOrder = async (req, res) => {
   }
 };
 
+// Get admin orders
+const getAdminOrders = async (req, res) => {
+  try {
+    const { status, page, limit, search } = req.query;
+    
+    const order = await getAdminOrdersService(status, page, limit, search);
+    res.json(order);
+  } catch (error) {
+    console.error('Error getting order:', error);
+    if (error.message === 'Order not found') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Export the functions
 module.exports = {
   createOrder,
@@ -121,5 +137,6 @@ module.exports = {
   getOrderById: getOrderByIdController,
   updateOrderStatus: updateOrderStatusController,
   generateLicences,
-  sendLicenseEmailForOrder
+  sendLicenseEmailForOrder,
+  getAdminOrders
 };

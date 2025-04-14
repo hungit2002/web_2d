@@ -67,7 +67,8 @@ const OrderConfirmation = () => {
     };
 
     // Handle PayPal payment error
-    const handlePaymentError = (err) => {
+    const handlePaymentError = async (err) => {
+        await updateOrderStatus(order.id, 'fail', details.id);
         console.error('Payment error:', err);
         setError('Payment failed. Please try again.');
     };
