@@ -21,7 +21,7 @@ export const createOrder = async (paymentMethod = 1) => {
 // Get user orders
 export const getUserOrders = async () => {
   const response = await axios.get(
-    `${API_URL}/api/orders`,
+    `${API_URL}/orders`,
     {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
