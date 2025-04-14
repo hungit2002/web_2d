@@ -28,6 +28,11 @@ const Order = sequelize.define('Order', {
     defaultValue: 'pending',
     allowNull: false
   },
+  transaction_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
   deleted_at: {
     type: DataTypes.DATE,
     allowNull: true
@@ -55,5 +60,4 @@ Order.associate = (models) => {
     as: 'products'
   });
 };
-
 module.exports = Order;
