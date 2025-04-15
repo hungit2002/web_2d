@@ -25,6 +25,8 @@ const Post = require('./Post');
 const CartItem = require('./CartItem');
 const Order = require('./Order');
 const OrderProduct = require('./OrderProduct');
+const Conversation = require('./conversation')(sequelize, Sequelize.DataTypes);
+const Message = require('./message')(sequelize, Sequelize.DataTypes);
 // Add models to db object
 db.User = User;
 db.Role = Role;
@@ -36,7 +38,8 @@ db.Post = Post;
 db.CartItem = CartItem;
 db.Order = Order;
 db.OrderProduct = OrderProduct;
-
+db.Conversation = Conversation;
+db.Message = Message;
 // Initialize associations
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {

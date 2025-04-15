@@ -13,6 +13,7 @@ const postRoutes = require('./routes/post.routes'); // Add this line
 const cartRoutes = require('./routes/cart.routes');
 const orderRoutes = require('./routes/order.routes'); // Add this line
 const dashboardRoutes = require('./routes/dashboard.routes');
+const chatRoutes = require('./routes/chatRoutes'); // Thêm chat routes
 const path = require('path');
 
 const app = express();
@@ -54,6 +55,7 @@ app.use('/api/posts', postRoutes); // Add this line
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes); // Add this line
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/chat', chatRoutes); // Thêm routes cho chat API
 // Serve static files from uploads directory
 app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
