@@ -15,6 +15,8 @@ import Admin from './pages/Admin.jsx';
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import UserLayout from "./layouts/UserLayout.jsx";
 import Customer from './pages/Customer.jsx';
+import ChatWidget from './components/ChatWidget';
+import { ChatProvider } from './contexts/ChatContext';
 
 // AppContent component that uses Redux
 const AppContent = () => {
@@ -119,9 +121,12 @@ const AppContent = () => {
 function App() {
   return (
     <Provider store={store}>
-      <Router>
-        <AppContent />
-      </Router>
+      <ChatProvider>
+        <Router>
+          <AppContent />
+          <ChatWidget />
+        </Router>
+      </ChatProvider>
     </Provider>
   );
 }

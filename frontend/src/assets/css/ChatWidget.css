@@ -1,0 +1,256 @@
+.chat-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.chat-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.chat-button:hover {
+  background-color: #357bd8;
+  transform: scale(1.05);
+}
+
+.chat-container {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  width: 350px;
+  height: 450px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-header {
+  background-color: #4a90e2;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.end-chat-btn {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.end-chat-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 10px 15px;
+  border-radius: 18px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.bot-message {
+  align-self: flex-start;
+  background-color: #f1f0f0;
+  color: #333;
+  border-bottom-left-radius: 5px;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #4a90e2;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  width: auto;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background-color: #888;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+  animation: typing 1.4s infinite both;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+  margin-right: 0;
+}
+
+@keyframes typing {
+  0% {
+    transform: translateY(0px);
+    background-color: #888;
+  }
+  28% {
+    transform: translateY(-5px);
+    background-color: #666;
+  }
+  44% {
+    transform: translateY(0px);
+    background-color: #888;
+  }
+}
+
+.chat-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #e6e6e6;
+  background-color: #f9f9f9;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.chat-input input:disabled {
+  background-color: #f1f1f1;
+  cursor: not-allowed;
+}
+
+.chat-input button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 15px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.chat-input button:hover:not(:disabled) {
+  background-color: #357bd8;
+}
+
+.chat-input button:disabled {
+  background-color: #a9caef;
+  cursor: not-allowed;
+}
+
+/* Rating container styles */
+.rating-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  height: 100%;
+}
+
+.rating-container h3 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.star {
+  font-size: 30px;
+  color: #ddd;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: color 0.2s;
+}
+
+.star:hover, .star.active {
+  color: #ffc107;
+}
+
+.rating-container textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  resize: none;
+  font-family: inherit;
+}
+
+.rating-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.rating-buttons button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.rating-buttons button.skip-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.rating-buttons button:hover {
+  background-color: #357bd8;
+}
+
+.rating-buttons button.skip-btn:hover {
+  background-color: #e0e0e0;
+} 
