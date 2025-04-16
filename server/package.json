@@ -5,9 +5,13 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "seed": "npx sequelize-cli db:seed:all",
+    "seed:fresh": "npx sequelize-cli db:seed:undo:all && npx sequelize-cli db:seed:all",
+    "seed:comprehensive": "npx sequelize-cli db:seed --seed 20250412075000-comprehensive-seed.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -23,6 +27,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "nodemon": "^3.0.2"
   }
 }
