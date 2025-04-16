@@ -11,6 +11,7 @@
     "seed:comprehensive": "npx sequelize-cli db:seed --seed 20250412075000-comprehensive-seed.js"
   },
   "dependencies": {
+    "@google/genai": "^0.8.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
