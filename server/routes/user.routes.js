@@ -8,7 +8,7 @@ const {
   deleteUserById, 
   changePasswordHandler
 } = require('../controllers/user.controller');
-const { adminAuthMiddleware } = require('../middlewares/auth.middleware');
+const { adminAuthMiddleware, authMiddleware } = require('../middlewares/auth.middleware');
 const multer = require('multer');
 const upload = multer();
 
@@ -18,7 +18,7 @@ router.get('/:id', getUser);
 
 // Protected routes (admin only)
 router.post('/', adminAuthMiddleware, createNewUser);
-router.put('/:id', adminAuthMiddleware, upload.single('avatar'), updateUserProfile);
+router.put('/:id', authMiddleware, upload.single('avatar'), updateUserProfile);
 router.delete('/:id', adminAuthMiddleware, deleteUserById);
 
 // Add this new route

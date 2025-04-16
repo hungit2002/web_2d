@@ -4,7 +4,7 @@ const { ADMIN_ROLE_NAME, CUSTOMER_ROLE_NAME } = require('../constant');
 
 const adminAuthMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];    
+    const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
       return res.status(401).json({ error: 'No token provided' });
     }
@@ -13,9 +13,9 @@ const adminAuthMiddleware = async (req, res, next) => {
     if (token === process.env.TOKEN_TO_SEVER) {
       return next();
     }
-    
-    const decoded = verifyToken(token, JWT_SECRET);    
-    
+
+    const decoded = verifyToken(token, JWT_SECRET);
+
     const user = await db.User.findOne({
       where: { id: decoded.id },
       include: [{
@@ -42,7 +42,7 @@ const adminAuthMiddleware = async (req, res, next) => {
 // If your middleware is defined like this:
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];    
+    const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
       return res.status(401).json({ error: 'No token provided' });
     }
@@ -51,9 +51,9 @@ const authMiddleware = async (req, res, next) => {
     if (token === process.env.TOKEN_TO_SEVER) {
       return next();
     }
-    
-    const decoded = verifyToken(token, JWT_SECRET);    
-    
+
+    const decoded = verifyToken(token, JWT_SECRET);
+
     const user = await db.User.findOne({
       where: { id: decoded.id },
       include: [{
@@ -62,6 +62,11 @@ const authMiddleware = async (req, res, next) => {
         through: { attributes: [] }
       }]
     });
+    if (user || user.roles.some(role => role.role_name === ADMIN_ROLE_NAME)) {
+      req.user = user;
+      next();
+      return;
+    }
 
     if (!user || !user.roles.some(role => role.role_name === CUSTOMER_ROLE_NAME)) {
       return res.status(403).json({ error: 'Admin access required' });
