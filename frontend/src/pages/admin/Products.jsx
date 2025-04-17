@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Card, Table, Button, Modal, Form, Pagination, Image } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -29,34 +29,44 @@ const Products = () => {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchProducts = async (page = 1) => {
+  // Use useCallback to prevent unnecessary re-renders
+  const fetchProducts = useCallback(async (page = 1) => {
     try {
+      setIsLoading(true);
       const response = await getProducts(page, 10, searchTerm);
-      setProducts(response.products);
+      setProducts(response.products || []);
       setPagination({
-        currentPage: response.currentPage,
-        totalPages: response.totalPages,
-        totalItems: response.totalItems
+        currentPage: Number(response.currentPage) || 1,
+        totalPages: Number(response.totalPages) || 1,
+        totalItems: Number(response.totalItems) || 0
       });
+      setIsLoading(false);
     } catch (error) {
       toast.error('Error fetching products');
+      setIsLoading(false);
     }
-  };
+  }, [searchTerm]);
 
   const fetchCategories = async () => {
     try {
       const data = await getCategories();
-      setCategories(data?.categories);
+      setCategories(data?.categories || []);
     } catch (error) {
       toast.error('Error fetching categories');
     }
   };
 
+  // Effect to fetch products when searchTerm changes
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(1); // Reset to page 1 when search changes
+  }, [searchTerm, fetchProducts]);
+
+  // Initial data fetch
+  useEffect(() => {
     fetchCategories();
-  }, [searchTerm]);
+  }, []);
 
   const handleShowModal = (product = null) => {
     setSelectedProduct(product);
@@ -137,27 +147,92 @@ const Products = () => {
       try {
         await deleteProduct(productId);
         toast.success('Product deleted successfully');
-        fetchProducts(pagination.currentPage);
+        // If we're on the last page and it has only one item, go to previous page
+        const isLastItemOnPage = products.length === 1;
+        const isLastPage = pagination.currentPage === pagination.totalPages;
+        if (isLastItemOnPage && isLastPage && pagination.currentPage > 1) {
+          fetchProducts(pagination.currentPage - 1);
+        } else {
+          fetchProducts(pagination.currentPage);
+        }
       } catch (error) {
         toast.error('Error deleting product');
       }
     }
   };
 
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber !== pagination.currentPage) {
+      fetchProducts(pageNumber);
+    }
+  };
+
   const renderPagination = () => {
+    if (pagination.totalPages <= 1) return null;
+
     const items = [];
-    for (let i = 1; i <= pagination.totalPages; i++) {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(pagination.totalPages, startPage + maxPagesToShow - 1);
+
+    // Adjust startPage if we're near the end
+    if (endPage === pagination.totalPages) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    // Add first page and ellipsis if necessary
+    if (startPage > 1) {
+      items.push(
+        <Pagination.Item key={1} onClick={() => handlePageChange(1)}>
+          1
+        </Pagination.Item>
+      );
+      if (startPage > 2) {
+        items.push(<Pagination.Ellipsis key="ellipsis1" disabled />);
+      }
+    }
+
+    // Add page numbers
+    for (let i = startPage; i <= endPage; i++) {
       items.push(
         <Pagination.Item
           key={i}
           active={i === pagination.currentPage}
-          onClick={() => fetchProducts(i)}
+          onClick={() => handlePageChange(i)}
         >
           {i}
         </Pagination.Item>
       );
     }
-    return <Pagination>{items}</Pagination>;
+
+    // Add last page and ellipsis if necessary
+    if (endPage < pagination.totalPages) {
+      if (endPage < pagination.totalPages - 1) {
+        items.push(<Pagination.Ellipsis key="ellipsis2" disabled />);
+      }
+      items.push(
+        <Pagination.Item 
+          key={pagination.totalPages} 
+          onClick={() => handlePageChange(pagination.totalPages)}
+        >
+          {pagination.totalPages}
+        </Pagination.Item>
+      );
+    }
+
+    return (
+      <Pagination>
+        <Pagination.Prev 
+          onClick={() => handlePageChange(pagination.currentPage - 1)}
+          disabled={pagination.currentPage === 1}
+        />
+        {items}
+        <Pagination.Next 
+          onClick={() => handlePageChange(pagination.currentPage + 1)}
+          disabled={pagination.currentPage === pagination.totalPages}
+        />
+      </Pagination>
+    );
   };
 
   return (
@@ -179,65 +254,73 @@ const Products = () => {
           </div>
         </Card.Header>
         <Card.Body>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Price (Sale)</th>
-                <th>Price (Original)</th>
-                <th>Hot</th>
-                <th>New</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td>{product.id}</td>
-                  <td>
-                    {product.image && (
-                      <Image 
-                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/uploads/${product.image}`} 
-                        alt={product.name} 
-                        width={50} 
-                        height={50} 
-                        thumbnail 
-                      />
-                    )}
-                  </td>
-                  <td>{product.name}</td>
-                  <td>${product.priceSale}</td>
-                  <td>${product.priceOrigin}</td>
-                  <td>{product.is_hot ? 'Yes' : 'No'}</td>
-                  <td>{product.is_new ? 'Yes' : 'No'}</td>
-                  <td>
-                    <Button
-                      variant="warning"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => handleShowModal(product)}
-                      title="Edit"
-                    >
-                      <FaEdit />
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDelete(product.id)}
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </Button>
-                  </td>
+          {isLoading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-4">No products found</div>
+          ) : (
+            <Table striped bordered hover responsive>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Price (Sale)</th>
+                  <th>Price (Original)</th>
+                  <th>Hot</th>
+                  <th>New</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-          <div className="d-flex justify-content-center mt-3">
-            {renderPagination()}
-          </div>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product.id}>
+                    <td>{product.id}</td>
+                    <td>
+                      {product.image && (
+                        <Image 
+                          src={`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/uploads/${product.image}`} 
+                          alt={product.name} 
+                          width={50} 
+                          height={50} 
+                          thumbnail 
+                        />
+                      )}
+                    </td>
+                    <td>{product.name}</td>
+                    <td>${product.priceSale}</td>
+                    <td>${product.priceOrigin}</td>
+                    <td>{product.is_hot ? 'Yes' : 'No'}</td>
+                    <td>{product.is_new ? 'Yes' : 'No'}</td>
+                    <td>
+                      <Button
+                        variant="warning"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => handleShowModal(product)}
+                        title="Edit"
+                      >
+                        <FaEdit />
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDelete(product.id)}
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+          {pagination.totalPages > 1 && (
+            <div className="d-flex justify-content-center mt-3">
+              {renderPagination()}
+            </div>
+          )}
         </Card.Body>
       </Card>
 
@@ -300,7 +383,7 @@ const Products = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>Type</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="text"
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                   />

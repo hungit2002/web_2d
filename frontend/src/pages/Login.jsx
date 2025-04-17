@@ -116,14 +116,14 @@ const Login = () => {
                 </div>
 
                 <div className="text-center mt-3">
-                  <Link to="/forgot-password" className="text-decoration-none">
+                  <Link to="/customer/forgot-password" className="text-decoration-none">
                     Forgot Password?
                   </Link>
                 </div>
 
                 <div className="text-center mt-3">
                   <span>Don't have an account? </span>
-                  <Link to="/register" className="text-decoration-none">
+                  <Link to="/customer/register" className="text-decoration-none">
                     Register
                   </Link>
                 </div>

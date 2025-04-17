@@ -115,7 +115,7 @@ const AdminLogin = () => {
                 </div>
 
                 <div className="text-center mt-3">
-                  <Link to="/login" className="text-decoration-none">
+                  <Link to="/customer/login" className="text-decoration-none">
                     Back to User Login
                   </Link>
                 </div>

@@ -219,7 +219,7 @@ const Register = () => {
 
                 <div className="text-center mt-3">
                   <span>Already have an account? </span>
-                  <Link to="/login" className="text-decoration-none">
+                  <Link to="/customer/login" className="text-decoration-none">
                     Login
                   </Link>
                 </div>
