@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import chatService from '../services/chatService';
+import geminiService from '../services/geminiService';
 
 const ChatContext = createContext();
 
@@ -22,7 +23,7 @@ export const ChatProvider = ({ children }) => {
       
       // Khởi tạo với tin nhắn chào mừng
       setMessages([
-        { id: 1, text: 'Xin chào! Tôi có thể giúp gì cho bạn?', sender: 'bot' }
+        { id: 1, text: 'Xin chào! Tôi là trợ lý AI của Web2D. Tôi có thể giúp gì cho bạn?', sender: 'bot' }
       ]);
       
       setIsLoading(false);
@@ -32,7 +33,7 @@ export const ChatProvider = ({ children }) => {
     }
   };
   
-  // Gửi tin nhắn đến chatbot
+  // Gửi tin nhắn đến chatbot powered by Gemini
   const sendMessage = async (message) => {
     if (!message.trim() || isLoading) return;
     
@@ -47,23 +48,24 @@ export const ChatProvider = ({ children }) => {
         await startNewConversation();
       }
       
-      // Gửi tin nhắn đến server
-      const response = await chatService.sendMessage(message, conversationId);
+      // Sử dụng Gemini để tạo phản hồi
+      const geminiResponse = await geminiService.generateResponse(message);
+      
+      // Lưu tin nhắn vào lịch sử nếu cần
+      try {
+        await chatService.sendMessage(message, conversationId);
+      } catch (error) {
+        console.warn('Failed to save message to history, but continuing with Gemini response', error);
+      }
       
       // Thêm tin nhắn phản hồi vào danh sách
       const botResponse = {
         id: Date.now() + 1,
-        text: response.message || 'Cảm ơn bạn đã liên hệ!',
+        text: geminiResponse || 'Xin lỗi, tôi không thể xử lý yêu cầu của bạn lúc này.',
         sender: 'bot'
       };
       
       setMessages(prev => [...prev, botResponse]);
-      
-      // Cập nhật conversationId nếu cần
-      if (response.conversationId && !conversationId) {
-        setConversationId(response.conversationId);
-      }
-      
       setIsLoading(false);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -71,7 +73,7 @@ export const ChatProvider = ({ children }) => {
       // Thêm tin nhắn lỗi
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
-        text: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.',
+        text: 'Xin lỗi, có lỗi xảy ra khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.',
         sender: 'bot'
       }]);
       
@@ -87,7 +89,7 @@ export const ChatProvider = ({ children }) => {
       await chatService.endConversation(conversationId);
       setConversationId(null);
       setMessages([
-        { id: Date.now(), text: 'Xin chào! Tôi có thể giúp gì cho bạn?', sender: 'bot' }
+        { id: Date.now(), text: 'Xin chào! Tôi là trợ lý AI của Web2D. Tôi có thể giúp gì cho bạn?', sender: 'bot' }
       ]);
     } catch (error) {
       console.error('Error ending conversation:', error);

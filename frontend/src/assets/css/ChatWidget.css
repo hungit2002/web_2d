@@ -31,7 +31,7 @@
   bottom: 70px;
   right: 0;
   width: 350px;
-  height: 450px;
+  height: 500px;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -43,12 +43,48 @@
 .chat-header {
   background-color: #4a90e2;
   color: white;
-  padding: 15px;
-  text-align: center;
+  padding: 12px 15px;
   font-weight: bold;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.chat-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-indicator {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.ai-dot {
+  height: 6px;
+  width: 6px;
+  background-color: #4fff4f;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
 }
 
 .chat-header h3 {
@@ -77,14 +113,16 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background-color: #f9f9f9;
 }
 
 .message {
-  max-width: 80%;
+  max-width: 85%;
   padding: 10px 15px;
   border-radius: 18px;
-  line-height: 1.4;
+  line-height: 1.5;
   word-wrap: break-word;
+  font-size: 14px;
 }
 
 .bot-message {
@@ -158,6 +196,11 @@
   font-size: 14px;
 }
 
+.chat-input input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
 .chat-input input:disabled {
   background-color: #f1f1f1;
   cursor: not-allowed;
@@ -172,15 +215,27 @@
   margin-left: 10px;
   cursor: pointer;
   font-weight: bold;
+  transition: all 0.2s;
 }
 
 .chat-input button:hover:not(:disabled) {
   background-color: #357bd8;
+  transform: translateY(-1px);
 }
 
 .chat-input button:disabled {
   background-color: #a9caef;
   cursor: not-allowed;
+}
+
+/* Powered by text */
+.powered-by {
+  text-align: center;
+  padding: 5px 0;
+  font-size: 11px;
+  color: #888;
+  background-color: #f1f1f1;
+  border-top: 1px solid #e6e6e6;
 }
 
 /* Rating container styles */
@@ -252,5 +307,46 @@
 }
 
 .rating-buttons button.skip-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #e6e6e6;
+}
+
+/* Prompt suggestions */
+.prompt-suggestions {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: rgba(74, 144, 226, 0.05);
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.prompt-suggestions p {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #555;
+  font-weight: 500;
+}
+
+.suggestion-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestion-btn {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-btn:hover {
+  background-color: #f0f7ff;
+  border-color: #4a90e2;
+  transform: translateY(-1px);
 } 
