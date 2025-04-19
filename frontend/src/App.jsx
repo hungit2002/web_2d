@@ -17,6 +17,7 @@ import UserLayout from "./layouts/UserLayout.jsx";
 import Customer from './pages/Customer.jsx';
 import ChatWidget from './components/ChatWidget';
 import { ChatProvider } from './contexts/ChatContext';
+import LiveAgentChatWidget from './components/chat/LiveAgentChatWidget.jsx';
 
 // AppContent component that uses Redux
 const AppContent = () => {
@@ -124,7 +125,8 @@ function App() {
       <ChatProvider>
         <Router>
           <AppContent />
-          <ChatWidget />
+          {/* <ChatWidget /> */}
+          <LiveAgentChatWidget />
         </Router>
       </ChatProvider>
     </Provider>
