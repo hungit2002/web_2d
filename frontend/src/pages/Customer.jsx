@@ -15,6 +15,7 @@ import Blogs from './Blogs';
 import BlogDetail from './BlogDetail';
 import UserOrders from './user/UserOrders';
 import Order from './user/Order';
+import Setting from './user/Setting';
 const Customer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const Customer = () => {
         <Route path="posts" element={<Posts />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/blogs/:id" element={<BlogDetail />} />
-        <Route path="settings" element={<div>Settings Page</div>} />
+        <Route path="settings" element={<Setting/>} />
         <Route path="order-confirmation" element={<OrderConfirmation />} />
         <Route path="orders" element={<UserOrders />} />
         <Route path="orders/:id" element={<Order />} />
