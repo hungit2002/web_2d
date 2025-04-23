@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -33,6 +33,7 @@ const schema = yup.object().shape({
 const Register = () => {
   const [showVerificationCode, setShowVerificationCode] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
@@ -49,6 +50,15 @@ const Register = () => {
     },
   });
 
+  // Add countdown effect
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
   const onSubmit = async (data) => {
     try {
       dispatch(setLoading(true));
@@ -58,6 +68,7 @@ const Register = () => {
         await registerApi(data);
         setFormData(data);
         setShowVerificationCode(true);
+        setCountdown(60); // Start countdown when verification code is sent
       } else {
         const { email, verificationCode, ...userData } = data;
         const result = await verifyRegistration(email, verificationCode, userData);
@@ -80,6 +91,22 @@ const Register = () => {
       }
     } catch (error) {
       dispatch(setError(error.response?.data?.error || 'Something went wrong'));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  // Add resend verification code function
+  const handleResendCode = async () => {
+    if (countdown > 0 || !formData) return;
+    
+    try {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      await registerApi(formData);
+      setCountdown(60); // Reset countdown
+    } catch (error) {
+      dispatch(setError(error.response?.data?.error || 'Failed to resend verification code'));
     } finally {
       dispatch(setLoading(false));
     }
@@ -203,6 +230,17 @@ const Register = () => {
                     <Form.Control.Feedback type="invalid">
                       {errors.verificationCode?.message}
                     </Form.Control.Feedback>
+                    <div className="d-flex justify-content-end mt-2">
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        onClick={handleResendCode}
+                        disabled={countdown > 0 || loading}
+                        className="p-0 text-decoration-none"
+                      >
+                        {countdown > 0 ? `Resend code (${countdown}s)` : 'Resend code'}
+                      </Button>
+                    </div>
                   </Form.Group>
                 )}
 
@@ -232,4 +270,4 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;
