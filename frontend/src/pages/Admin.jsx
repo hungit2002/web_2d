@@ -10,6 +10,7 @@ import Dashboard from './admin/Dashboard';
 import Banners from './admin/Banners'; // Add this import
 import Posts from './admin/Posts';
 import Users from './admin/users';
+import AdminProfile from './admin/AdminProfile'; // Import the new AdminProfile component
 
 const Admin = () => {
   const dispatch = useDispatch();
@@ -38,7 +39,7 @@ const Admin = () => {
         <Route path="posts" element={<Posts />} />
         <Route path="orders" element={<Orders />} />
         <Route path="settings" element={<Settings />} />
-        <Route path="profile" element={<div>Admin Profile</div>} />
+        <Route path="profile" element={<AdminProfile />} />
       </Routes>
     </>
   );

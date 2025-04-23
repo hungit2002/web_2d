@@ -46,14 +46,14 @@ const authMiddleware = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ error: 'No token provided' });
     }
-
+    
     // Check if token matches TOKEN_TO_SEVER
     if (token === process.env.TOKEN_TO_SEVER) {
       return next();
     }
 
     const decoded = verifyToken(token, JWT_SECRET);
-
+    
     const user = await db.User.findOne({
       where: { id: decoded.id },
       include: [{
