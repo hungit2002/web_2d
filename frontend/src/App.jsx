@@ -8,7 +8,7 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
-import { getAccessToken, isAdminSession } from "./utils/session.js";
+import { getAccessToken, isAdminSession, isCustomerSession } from "./utils/session.js";
 import AdminLogin from './pages/AdminLogin';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import Admin from './pages/Admin.jsx';
@@ -126,7 +126,7 @@ function App() {
         <Router>
           <AppContent />
           {/* <ChatWidget /> */}
-          <LiveAgentChatWidget />
+          {!isAdminSession() && <LiveAgentChatWidget />}
         </Router>
       </ChatProvider>
     </Provider>
