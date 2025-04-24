@@ -7,20 +7,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import { login } from '../services/auth.service';
 import { setCredentials } from '../store/slices/authSlice';
-
-const schema = yup.object().shape({
-  email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .required('Password is required'),
-});
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const schema = yup.object().shape({
+    email: yup.string().email(t('validation.invalidEmail')).required(t('validation.emailRequired')),
+    password: yup
+      .string()
+      .min(8, t('validation.passwordMinLength'))
+      .required(t('validation.passwordRequired')),
+  });
 
   const {
     register,
@@ -34,55 +36,30 @@ const Login = () => {
     try {
       setLoading(true);
       setError('');
-      
       const response = await login(data);
-      
-      if (response.success) {
-        const { user, token } = response.data;
-        
-        const action = setCredentials({ 
-          user: {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-            phone: user.phone,
-            roles: user.roles
-          }, 
-          token 
-        });
-        
-        dispatch(action);
-        
-        navigate('/customer/dashboard');
-      }
+      dispatch(setCredentials(response));
+      navigate('/customer/dashboard');
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.response?.data?.error || 'An error occurred during login');
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-center">
+    <Container>
+      <Row className="justify-content-center mt-5">
         <Col md={6}>
-          <div className="card shadow">
-            <div className="card-body p-4">
-              <h2 className="text-center mb-4">Login</h2>
-              
-              {error && (
-                <Alert variant="danger" className="mb-3">
-                  {error}
-                </Alert>
-              )}
-
+          <div className="card">
+            <div className="card-body">
+              <h2 className="text-center mb-4">{t('auth.loginTitle')}</h2>
+              {error && <Alert variant="danger">{error}</Alert>}
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>{t('common.email')}</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={t('common.email')}
                     {...register('email')}
                     isInvalid={!!errors.email}
                   />
@@ -92,10 +69,10 @@ const Login = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label>{t('common.password')}</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder={t('common.password')}
                     {...register('password')}
                     isInvalid={!!errors.password}
                   />
@@ -104,37 +81,29 @@ const Login = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                <div className="d-grid gap-2">
-                  <Button 
-                    variant="primary" 
-                    type="submit" 
-                    size="lg"
-                    disabled={loading}
-                  >
-                    {loading ? 'Logging in...' : 'Login'}
-                  </Button>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    label={t('auth.rememberMe')}
+                  />
+                  <Link to="/customer/forgot-password">{t('auth.forgotPassword')}</Link>
                 </div>
 
-                <div className="text-center mt-3">
-                  <Link to="/customer/forgot-password" className="text-decoration-none">
-                    Forgot Password?
-                  </Link>
-                </div>
-
-                <div className="text-center mt-3">
-                  <span>Don't have an account? </span>
-                  <Link to="/customer/register" className="text-decoration-none">
-                    Register
-                  </Link>
-                </div>
-                
-                {/* Add admin login link */}
-                <div className="text-center mt-4 pt-3 border-top">
-                  <Link to="/admin/login" className="btn btn-outline-secondary btn-sm">
-                    Admin Login
-                  </Link>
-                </div>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-100"
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : t('common.login')}
+                </Button>
               </Form>
+              <div className="text-center mt-3">
+                <p>
+                  {t('auth.dontHaveAccount')}{' '}
+                  <Link to="/customer/register">{t('common.register')}</Link>
+                </p>
+              </div>
             </div>
           </div>
         </Col>

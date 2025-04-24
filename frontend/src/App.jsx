@@ -18,6 +18,7 @@ import Customer from './pages/Customer.jsx';
 import ChatWidget from './components/ChatWidget';
 import { ChatProvider } from './contexts/ChatContext';
 import LiveAgentChatWidget from './components/chat/LiveAgentChatWidget.jsx';
+import LanguageRedirect from './components/LanguageRedirect';
 
 // AppContent component that uses Redux
 const AppContent = () => {
@@ -48,73 +49,76 @@ const AppContent = () => {
   }, [location, authState]);
 
   return (
-    <Routes>
-      {/* Admin Routes */}
-      <Route path="/admin/*" element={
-        <Routes>
-          {/* Admin Public Routes */}
-          <Route path="login" element={<AdminLogin />} />
-
-          {/* Admin Protected Routes - Using AdminLayout */}
-          <Route element={<AdminProtectedRoute />}>
-            <Route path="*" element={
-              <AdminLayout>
-                <Routes>
-                  <Route path="/*" element={<Admin />} />
-                  {/* Redirect admin root to dashboard */}
-                  <Route path="" element={<Navigate to="/admin/dashboard" replace />} />
-                </Routes>
-              </AdminLayout>
-            } />
-          </Route>
-        </Routes>
-      } />
-
-      {/* Customer Routes */}
-      <Route path="/customer/*" element={
-        <UserLayout>
+    <>
+      <LanguageRedirect />
+      <Routes>
+        {/* Admin Routes */}
+        <Route path="/admin/*" element={
           <Routes>
-            {/* Public Routes */}
-            <Route element={<PublicRoute />}>
-              <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
-              <Route path="forgot-password" element={<ForgotPassword />} />
-            </Route>
+            {/* Admin Public Routes */}
+            <Route path="login" element={<AdminLogin />} />
 
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/*" element={<Customer />} />
+            {/* Admin Protected Routes - Using AdminLayout */}
+            <Route element={<AdminProtectedRoute />}>
+              <Route path="*" element={
+                <AdminLayout>
+                  <Routes>
+                    <Route path="/*" element={<Admin />} />
+                    {/* Redirect admin root to dashboard */}
+                    <Route path="" element={<Navigate to="/admin/dashboard" replace />} />
+                  </Routes>
+                </AdminLayout>
+              } />
             </Route>
-
-            {/* Redirect root to dashboard if authenticated, otherwise to login */}
-            <Route
-              path=""
-              element={
-                isAuthenticated ? (
-                  isAdminSession() ?
-                    <Navigate to="/admin/dashboard" replace /> :
-                    <Navigate to="/customer/dashboard" replace />
-                ) : (
-                  <Navigate to="/customer/login" replace />
-                )
-              }
-            />
           </Routes>
-        </UserLayout>
-      } />
-      <Route
-        path=""
-        element={
-          isAuthenticated ? (
-            isAdminSession() ?
-              <Navigate to="/admin/dashboard" replace /> :
-              <Navigate to="/customer/dashboard" replace />
-          ) : (
-            <Navigate to="/customer/login" replace />
-          )
-        }
-      />
-    </Routes>
+        } />
+
+        {/* Customer Routes */}
+        <Route path="/customer/*" element={
+          <UserLayout>
+            <Routes>
+              {/* Public Routes */}
+              <Route element={<PublicRoute />}>
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
+                <Route path="forgot-password" element={<ForgotPassword />} />
+              </Route>
+
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/*" element={<Customer />} />
+              </Route>
+
+              {/* Redirect root to dashboard if authenticated, otherwise to login */}
+              <Route
+                path=""
+                element={
+                  isAuthenticated ? (
+                    isAdminSession() ?
+                      <Navigate to="/admin/dashboard" replace /> :
+                      <Navigate to="/customer/dashboard" replace />
+                  ) : (
+                    <Navigate to="/customer/login" replace />
+                  )
+                }
+              />
+            </Routes>
+          </UserLayout>
+        } />
+        <Route
+          path=""
+          element={
+            isAuthenticated ? (
+              isAdminSession() ?
+                <Navigate to="/admin/dashboard" replace /> :
+                <Navigate to="/customer/dashboard" replace />
+            ) : (
+              <Navigate to="/customer/login" replace />
+            )
+          }
+        />
+      </Routes>
+    </>
   );
 };
 
@@ -134,9 +138,4 @@ function App() {
 }
 
 export default App;
-
-// In the Admin routes section:
-
-
-// In the User routes section (protected routes):
 

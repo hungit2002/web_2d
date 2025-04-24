@@ -1,158 +1,81 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import React, { useState } from 'react';
+import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import * as yup from 'yup';
-import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { forgotPassword, resetPassword } from '../services/auth.service';
-
-const schema = yup.object().shape({
-  email: yup.string().email('Invalid email').required('Email is required'),
-  newPassword: yup
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .when('showVerificationCode', {
-      is: true,
-      then: (schema) => schema.required('New password is required'),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-  verificationCode: yup.string().when('showVerificationCode', {
-    is: true,
-    then: (schema) => schema.required('Verification code is required'),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-});
+import { forgotPassword } from '../services/auth.service';
+import { useTranslation } from 'react-i18next';
 
 const ForgotPassword = () => {
-  const navigate = useNavigate();
-  const [showVerificationCode, setShowVerificationCode] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+  const [loading, setLoading] = useState(false);
+
+  const schema = yup.object().shape({
+    email: yup.string().email(t('validation.invalidEmail')).required(t('validation.emailRequired')),
+  });
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
-    setValue,
   } = useForm({
     resolver: yupResolver(schema),
-    context: { showVerificationCode },
   });
-
-  const email = watch('email');
 
   const onSubmit = async (data) => {
     try {
       setLoading(true);
       setError('');
       setSuccess('');
-
-      if (!showVerificationCode) {
-        // Step 1: Request verification code
-        const response = await forgotPassword(data.email);
-        setSuccess(response.message || 'Verification code sent successfully');
-        setShowVerificationCode(true);
-        setValue('showVerificationCode', true);
-      } else {
-        // Step 2: Verify code and update password
-        const response = await resetPassword(
-          data.email,
-          data.verificationCode,
-          data.newPassword
-        );
-        
-        setSuccess(response.message || 'Password reset successfully');
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      }
+      await forgotPassword(data.email);
+      setSuccess('Password reset instructions have been sent to your email.');
     } catch (err) {
-      console.error('Error:', err);
-      setError(err.response?.data?.error || 'An error occurred. Please try again.');
+      setError(err.response?.data?.message || 'Failed to process request');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-center">
+    <Container>
+      <Row className="justify-content-center mt-5">
         <Col md={6}>
-          <div className="card shadow">
-            <div className="card-body p-4">
-              <h2 className="text-center mb-4">Reset Password</h2>
-              
+          <div className="card">
+            <div className="card-body">
+              <h2 className="text-center mb-4">{t('auth.resetPassword')}</h2>
               {error && <Alert variant="danger">{error}</Alert>}
               {success && <Alert variant="success">{success}</Alert>}
-              
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>{t('common.email')}</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={t('common.email')}
                     {...register('email')}
                     isInvalid={!!errors.email}
-                    disabled={showVerificationCode}
                   />
                   <Form.Control.Feedback type="invalid">
                     {errors.email?.message}
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                {showVerificationCode && (
-                  <>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Verification Code</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter verification code"
-                        {...register('verificationCode')}
-                        isInvalid={!!errors.verificationCode}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.verificationCode?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label>New Password</Form.Label>
-                      <Form.Control
-                        type="password"
-                        placeholder="Enter new password"
-                        {...register('newPassword')}
-                        isInvalid={!!errors.newPassword}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.newPassword?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </>
-                )}
-
-                <div className="d-grid gap-2">
-                  <Button 
-                    variant="primary" 
-                    type="submit" 
-                    size="lg"
-                    disabled={loading}
-                  >
-                    {loading 
-                      ? 'Processing...' 
-                      : (showVerificationCode ? 'Reset Password' : 'Get Verification Code')}
-                  </Button>
-                </div>
-
-                <div className="text-center mt-3">
-                  <Link to="/customer/login" className="text-decoration-none">
-                    Back to Login
-                  </Link>
-                </div>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-100"
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : t('auth.resetPassword')}
+                </Button>
               </Form>
+              <div className="text-center mt-3">
+                <p>
+                  <Link to="/customer/login">{t('common.back')} {t('common.login')}</Link>
+                </p>
+              </div>
             </div>
           </div>
         </Col>

@@ -8,11 +8,15 @@ import Container from "react-bootstrap/Container";
 import {FaBoxOpen, FaChartBar, FaCog, FaShoppingBag, FaUsers, FaUserShield, FaImages, FaNewspaper } from "react-icons/fa";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from '../components/LanguageSelector';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const AdminLayout = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(getAccessToken());
     const location = useLocation();
     const authState = useSelector(state => state.auth);
+    const { t } = useTranslation();
 
     useEffect(() => {
         setIsAuthenticated(getAccessToken());
@@ -25,46 +29,48 @@ const AdminLayout = ({ children }) => {
                     {/* Admin Logo */}
                     <Navbar.Brand href="/admin/dashboard">
                         <FaUserShield className="d-inline-block align-top me-2" size={24} />
-                        Web2D Admin
+                        {t('admin.adminPanel')}
                     </Navbar.Brand>
 
                     <Navbar.Toggle aria-controls="admin-navbar-nav" />
                     <Navbar.Collapse id="admin-navbar-nav">
                         <Nav className="me-auto">
                             <Nav.Link href="/admin/dashboard">
-                                <FaChartBar className="me-1" /> Dashboard
+                                <FaChartBar className="me-1" /> {t('common.dashboard')}
                             </Nav.Link>
                             <Nav.Link href="/admin/users">
-                                <FaUsers className="me-1" /> Users
+                                <FaUsers className="me-1" /> {t('common.users')}
                             </Nav.Link>
                             <Nav.Link href="/admin/products">
-                                <FaBoxOpen className="me-1" /> Products
+                                <FaBoxOpen className="me-1" /> {t('common.products')}
                             </Nav.Link>
                             <Nav.Link href="/admin/banners">
-                                <FaImages className="me-1" /> Banners
+                                <FaImages className="me-1" /> {t('common.banners')}
                             </Nav.Link>
                             <Nav.Link href="/admin/posts">
-                                <FaNewspaper className="me-1" /> Posts
+                                <FaNewspaper className="me-1" /> {t('common.posts')}
                             </Nav.Link>
                             <Nav.Link href="/admin/orders">
-                                <FaShoppingBag className="me-1" /> Orders
+                                <FaShoppingBag className="me-1" /> {t('common.orders')}
                             </Nav.Link>
                             <Nav.Link href="/admin/settings">
-                                <FaCog className="me-1" /> Settings
+                                <FaCog className="me-1" /> {t('common.settings')}
                             </Nav.Link>
                         </Nav>
 
                         <Nav>
+                            <LanguageSelector />
+                            <DarkModeToggle />
                             <NavDropdown
                                 title={
                                     <div className="d-inline-block">
-                                        <FaUserShield size={20} /> Admin
+                                        <FaUserShield size={20} /> {t('admin.adminPanel')}
                                     </div>
                                 }
                                 id="admin-dropdown"
                                 align="end"
                             >
-                                <NavDropdown.Item href="/admin/profile">Profile</NavDropdown.Item>
+                                <NavDropdown.Item href="/admin/profile">{t('common.profile')}</NavDropdown.Item>
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item
                                     onClick={() => {
@@ -73,7 +79,7 @@ const AdminLayout = ({ children }) => {
                                         window.location.href = '/admin/login';
                                     }}
                                 >
-                                    Logout
+                                    {t('common.logout')}
                                 </NavDropdown.Item>
                             </NavDropdown>
                         </Nav>

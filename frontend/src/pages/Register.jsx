@@ -1,131 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { vietnameseCities } from '../constants/cities';
-import { register as registerApi, verifyRegistration } from '../services/auth.service';
-import { setCredentials, setLoading, setError } from '../store/slices/authSlice';
-
-const schema = yup.object().shape({
-  fullName: yup.string().required('Full name is required'),
-  email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .required('Password is required'),
-  address: yup.string().required('Address is required'),
-  country: yup.string().required('Country is required'),
-  city: yup.string().required('City is required'),
-  phone: yup
-    .string()
-    .matches(/^[0-9]{10,11}$/, 'Phone number must be valid')
-    .required('Phone number is required'),
-  verificationCode: yup.string().when('showVerificationCode', {
-    is: true,
-    then: (schema) => schema.required('Verification code is required'),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-});
+import * as yup from 'yup';
+import { register as registerUser } from '../services/auth.service';
+import { useTranslation } from 'react-i18next';
 
 const Register = () => {
-  const [showVerificationCode, setShowVerificationCode] = useState(false);
-  const [formData, setFormData] = useState(null);
-  const [countdown, setCountdown] = useState(0);
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.auth);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const schema = yup.object().shape({
+    fullName: yup.string().required(t('validation.fullNameRequired')),
+    email: yup.string().email(t('validation.invalidEmail')).required(t('validation.emailRequired')),
+    password: yup
+      .string()
+      .min(8, t('validation.passwordMinLength'))
+      .required(t('validation.passwordRequired')),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref('password'), null], t('validation.passwordMatch'))
+      .required(t('validation.passwordRequired')),
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      showVerificationCode: false,
-    },
   });
-
-  // Add countdown effect
-  useEffect(() => {
-    let timer;
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [countdown]);
 
   const onSubmit = async (data) => {
     try {
-      dispatch(setLoading(true));
-      dispatch(setError(null));
-
-      if (!showVerificationCode) {
-        await registerApi(data);
-        setFormData(data);
-        setShowVerificationCode(true);
-        setCountdown(60); // Start countdown when verification code is sent
-      } else {
-        const { email, verificationCode, ...userData } = data;
-        const result = await verifyRegistration(email, verificationCode, userData);
-        if (result.success) {
-        const { user, token } = result.data;
-        const action = setCredentials({ 
-          user: {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-            phone: user.phone,
-            roles: user.roles
-          }, 
-          token 
-        });
-        dispatch(action);
-
-        navigate('/customer/dashboard');
-        }
-      }
-    } catch (error) {
-      dispatch(setError(error.response?.data?.error || 'Something went wrong'));
+      setLoading(true);
+      setError('');
+      await registerUser(data);
+      navigate('/customer/login');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed');
     } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  // Add resend verification code function
-  const handleResendCode = async () => {
-    if (countdown > 0 || !formData) return;
-    
-    try {
-      dispatch(setLoading(true));
-      dispatch(setError(null));
-      await registerApi(formData);
-      setCountdown(60); // Reset countdown
-    } catch (error) {
-      dispatch(setError(error.response?.data?.error || 'Failed to resend verification code'));
-    } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-center">
-        <Col md={8}>
-          <div className="card shadow">
-            <div className="card-body p-4">
-              <h2 className="text-center mb-4">Registration</h2>
+    <Container>
+      <Row className="justify-content-center mt-5">
+        <Col md={6}>
+          <div className="card">
+            <div className="card-body">
+              <h2 className="text-center mb-4">{t('auth.registerTitle')}</h2>
               {error && <Alert variant="danger">{error}</Alert>}
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Full Name</Form.Label>
+                  <Form.Label>{t('common.fullName')}</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter your full name"
+                    placeholder={t('common.fullName')}
                     {...register('fullName')}
                     isInvalid={!!errors.fullName}
                   />
@@ -135,10 +70,10 @@ const Register = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>{t('common.email')}</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={t('common.email')}
                     {...register('email')}
                     isInvalid={!!errors.email}
                   />
@@ -148,10 +83,10 @@ const Register = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label>{t('common.password')}</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder={t('common.password')}
                     {...register('password')}
                     isInvalid={!!errors.password}
                   />
@@ -161,107 +96,33 @@ const Register = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Address</Form.Label>
+                  <Form.Label>{t('common.confirmPassword')}</Form.Label>
                   <Form.Control
-                    type="text"
-                    placeholder="Enter your address"
-                    {...register('address')}
-                    isInvalid={!!errors.address}
+                    type="password"
+                    placeholder={t('common.confirmPassword')}
+                    {...register('confirmPassword')}
+                    isInvalid={!!errors.confirmPassword}
                   />
                   <Form.Control.Feedback type="invalid">
-                    {errors.address?.message}
+                    {errors.confirmPassword?.message}
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Country</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter your country"
-                    {...register('country')}
-                    isInvalid={!!errors.country}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.country?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>City</Form.Label>
-                  <Form.Select 
-                    {...register('city')} 
-                    isInvalid={!!errors.city}
-                    placeholder="Select your city"
-                  >
-                    <option value="">Select a city</option>
-                    {Object.entries(vietnameseCities).map(([key, value]) => (
-                      <option key={key} value={key}>
-                        {value}
-                      </option>
-                    ))}
-                  </Form.Select>
-                  <Form.Control.Feedback type="invalid">
-                    {errors.city?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Phone</Form.Label>
-                  <Form.Control
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    {...register('phone')}
-                    isInvalid={!!errors.phone}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.phone?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                {showVerificationCode && (
-                  <Form.Group className="mb-3">
-                    <Form.Label>Verification Code</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter verification code"
-                      {...register('verificationCode')}
-                      isInvalid={!!errors.verificationCode}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.verificationCode?.message}
-                    </Form.Control.Feedback>
-                    <div className="d-flex justify-content-end mt-2">
-                      <Button 
-                        variant="link" 
-                        size="sm" 
-                        onClick={handleResendCode}
-                        disabled={countdown > 0 || loading}
-                        className="p-0 text-decoration-none"
-                      >
-                        {countdown > 0 ? `Resend code (${countdown}s)` : 'Resend code'}
-                      </Button>
-                    </div>
-                  </Form.Group>
-                )}
-
-                <div className="d-grid gap-2">
-                  <Button 
-                    variant="primary" 
-                    type="submit" 
-                    size="lg"
-                    disabled={loading}
-                  >
-                    {loading ? 'Loading...' : showVerificationCode ? 'Complete Registration' : 'Get Verification Code'}
-                  </Button>
-                </div>
-
-                <div className="text-center mt-3">
-                  <span>Already have an account? </span>
-                  <Link to="/customer/login" className="text-decoration-none">
-                    Login
-                  </Link>
-                </div>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-100"
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : t('common.register')}
+                </Button>
               </Form>
+              <div className="text-center mt-3">
+                <p>
+                  {t('auth.alreadyHaveAccount')}{' '}
+                  <Link to="/customer/login">{t('common.login')}</Link>
+                </p>
+              </div>
             </div>
           </div>
         </Col>

@@ -1,23 +1,31 @@
-// Format date to local date string
-export const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  
-  const date = new Date(dateString);
-  return date.toLocaleDateString('vi-VN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+import { format } from 'date-fns';
+import { enUS, vi, zhCN } from 'date-fns/locale';
+import i18next from 'i18next';
+
+const locales = {
+  en: enUS,
+  vi: vi,
+  zh: zhCN
 };
 
-// Format currency to VND
-export const formatCurrency = (amount) => {
-  if (amount === undefined || amount === null) return 'N/A';
+export const formatDate = (date, formatStr = 'PPP') => {
+  const locale = locales[i18next.language] || enUS;
+  return format(new Date(date), formatStr, { locale });
+};
+
+export const formatCurrency = (amount, currencyCode = 'USD') => {
+  const language = i18next.language;
   
-  return new Intl.NumberFormat('vi-VN', {
+  const currencyByLanguage = {
+    en: 'USD',
+    vi: 'VND',
+    zh: 'CNY'
+  };
+  
+  const finalCurrencyCode = currencyCode || currencyByLanguage[language] || 'USD';
+  
+  return new Intl.NumberFormat(language, {
     style: 'currency',
-    currency: 'USD'
+    currency: finalCurrencyCode
   }).format(amount);
 };
